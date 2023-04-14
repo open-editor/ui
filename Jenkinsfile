@@ -1,0 +1,1 @@
+softwareNPMbuildPlugin(BuildAgent: 'node16')
