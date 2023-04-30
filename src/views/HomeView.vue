@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <template>
     <AppHeader/>
   <!-- Start block -->
