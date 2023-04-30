@@ -17,9 +17,7 @@
                         Sign up
                     </RouterLink>
                 </div>
-                <div class="user-icon cursor-pointer mx-1.5" v-if="isLogin">
-                    <img src="@/assets/user-icon-21.jpeg" alt="user" class="w-9 h-9 rounded-full">
-                </div>
+                <div class="user-icon cursor-pointer mx-1.5  text-3xl" v-if="isLogin">🙂</div>
             </nav>
             <div class="buttons flex">
                 <div class="btn-login">
