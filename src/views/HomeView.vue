@@ -20,7 +20,7 @@
                                 </div>
                                 <input type="text" id="simple-search"
                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                       placeholder="Search" required="">
+                                       placeholder="Search" required>
                             </div>
                         </form>
                     </div>
@@ -104,28 +104,28 @@
                                             (56)</label>
                                     </li>
                                     <li class="flex items-center">
-                                        <input id="asus" type="checkbox" value="" checked=""
+                                        <input id="asus" type="checkbox" value="" checked
                                                class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
                                         <label for="asus"
                                                class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">Asus
                                             (97)</label>
                                     </li>
                                     <li class="flex items-center">
-                                        <input id="logitech" type="checkbox" value="" checked=""
+                                        <input id="logitech" type="checkbox" value="" checked
                                                class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
                                         <label for="logitech"
                                                class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">Logitech
                                             (97)</label>
                                     </li>
                                     <li class="flex items-center">
-                                        <input id="msi" type="checkbox" value="" checked=""
+                                        <input id="msi" type="checkbox" value="" checked
                                                class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
                                         <label for="msi"
                                                class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">MSI
                                             (97)</label>
                                     </li>
                                     <li class="flex items-center">
-                                        <input id="bosch" type="checkbox" value="" checked=""
+                                        <input id="bosch" type="checkbox" value="" checked
                                                class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
                                         <label for="bosch"
                                                class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">Bosch
@@ -139,7 +139,7 @@
                                             (234)</label>
                                     </li>
                                     <li class="flex items-center">
-                                        <input id="samsung" type="checkbox" value="" checked=""
+                                        <input id="samsung" type="checkbox" value="" checked
                                                class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
                                         <label for="samsung"
                                                class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">Samsung
@@ -929,24 +929,24 @@
                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
                             <input type="text" name="name" id="name"
                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                   placeholder="Type product name" required="">
+                                   placeholder="Type product name" required>
                         </div>
                         <div>
                             <label for="brand" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Brand</label>
                             <input type="text" name="brand" id="brand"
                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                   placeholder="Product brand" required="">
+                                   placeholder="Product brand" required>
                         </div>
                         <div>
                             <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Price</label>
                             <input type="number" name="price" id="price"
                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                   placeholder="$2999" required="">
+                                   placeholder="$2999" required>
                         </div>
                         <div><label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label><select
                                 id="category"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            <option selected="">Select category</option>
+                            <option selected>Select category</option>
                             <option value="TV">TV/Monitors</option>
                             <option value="PC">PC</option>
                             <option value="GA">Gaming/Console</option>
@@ -1018,7 +1018,7 @@
                         <div><label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label><select
                                 id="category"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            <option selected="">Electronics</option>
+                            <option selected>Electronics</option>
                             <option value="TV">TV/Monitors</option>
                             <option value="PC">PC</option>
                             <option value="GA">Gaming/Console</option>
