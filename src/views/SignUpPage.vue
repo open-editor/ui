@@ -53,7 +53,8 @@
 </template>
 
 <script lang="ts" setup>
-import {Ref, ref} from "vue";
+import {Ref} from "vue";
+import {ref} from "vue";
 import {RouterLink} from "vue-router";
 import OeInput from "@/components/AppInput.vue";
 
@@ -62,11 +63,11 @@ interface inpInfo {
     name: string,
     placeholder: string,
     value: string,
-    pattern: object
+    pattern: RegExp
 }
 let valid = ref(false);
 
-const inputInfo:Ref< inpInfo[]> = ref([
+const inputInfo: Ref<inpInfo[]> = ref([
     {
         label: 'Your email',
         name: 'email',
@@ -84,6 +85,7 @@ const inputInfo:Ref< inpInfo[]> = ref([
 ]);
 const onInput = (i: number, value: string) => {
     inputInfo.value[i].value = value
+    let inputValue
     valid.value = !!(inputInfo.value[0].pattern.test(inputInfo.value[0].value) && inputInfo.value[1].pattern.test(inputInfo.value[1].value));
 }
 </script>
