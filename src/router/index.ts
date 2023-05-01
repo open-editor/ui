@@ -29,8 +29,8 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')
     },
     {
-      path: '/sheet-editor',
-      name: 'sheet-editor',
+      path: '/sheet',
+      name: 'sheet',
       component: () => import('../components/AppTable.vue')
     }
   ]
