@@ -87,7 +87,3 @@ const onInput = (i: number, value: string) => {
     valid.value = !!(inputInfo.value[0].pattern.test(inputInfo.value[0].value) && inputInfo.value[1].pattern.test(inputInfo.value[1].value));
 }
 </script>
-
-<style>
-
-</style>
