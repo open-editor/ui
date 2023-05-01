@@ -13,7 +13,7 @@
                         Create your Free Account
                     </h2>
                     <form class="space-y-4 md:space-y-6" action="#">
-                        <oe-input v-for="(inp,i) in inputInfo" :key="i" :inputInfo="inputInfo[i]" @onInput="onInput(i, $event)" class="block"/>
+                        <app-input v-for="(inp,i) in inputInfo" :key="i" :inputInfo="inputInfo[i]" @onInput="onInput(i, $event)" class="block"/>
                         <div>
                             <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth Date</p>
                             <div class="flex items-center">
@@ -101,7 +101,7 @@
 import type {Ref} from "vue";
 import {ref} from "vue";
 import {RouterLink} from "vue-router";
-import OeInput from "@/components/AppInput.vue";
+import AppInput from "@/components/AppInput.vue";
 
 interface inpInfo {
     label: string,
