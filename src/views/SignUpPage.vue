@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts" setup>
-import {Ref} from "vue";
+import type {Ref} from "vue";
 import {ref} from "vue";
 import {RouterLink} from "vue-router";
 import OeInput from "@/components/AppInput.vue";
