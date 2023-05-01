@@ -1,5 +1,5 @@
 <template>
-    <div class="header flex items-stretch my-2.5 mt-20">
+    <div class="header flex items-stretch my-2.5">
         <div class="cellName px-2.5 py-1.5 text-center rounded-s-lg border border-gray-300 w-[5%]">
             {{ tHead[colActive].name }}{{ rowActive + 1 }}
         </div>
@@ -13,7 +13,7 @@
             />
         </div>
     </div>
-    <div class="table-wrapper select-none border border-gray-300 h-[calc(100vh-128px)] overflow-scroll">
+    <div class="table-wrapper select-none border border-gray-300 h-[calc(100vh-58px)] overflow-scroll">
         <table class="table w-max border-collapse cursor-cell">
             <tr>
                 <th class="border border-gray-300 text-center h-[30px] w-[100px] max-w-[100px] relative cursor-s-resize"></th>
