@@ -1,5 +1,5 @@
 <template>
-    <oe-header/>
+    <app-header/>
   <!-- Start block -->
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 antialiased mt-14">
         <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
@@ -1166,5 +1166,4 @@
 
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
-import OeHeader from "@/components/OeHeader.vue";
 </script>

@@ -55,8 +55,7 @@
 <script lang="ts" setup>
 import {Ref, ref} from "vue";
 import {RouterLink} from "vue-router";
-import OeInput from "@/components/OeInput.vue";
-import OeHeader from "@/components/OeHeader.vue";
+import OeInput from "@/components/AppInput.vue";
 
 interface inpInfo {
     label: string,

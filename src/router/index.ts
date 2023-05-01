@@ -31,7 +31,7 @@ const router = createRouter({
     {
       path: '/sheet-editor',
       name: 'sheet-editor',
-      component: () => import('../components/OeTable.vue')
+      component: () => import('../components/AppTable.vue')
     }
   ]
 })

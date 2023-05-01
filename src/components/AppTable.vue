@@ -1,5 +1,4 @@
 <template>
-    <oe-header/>
     <div class="header flex items-stretch my-2.5 mt-20">
         <div class="cellName px-2.5 py-1.5 text-center rounded-s-lg border border-gray-300 w-[5%]">
             {{ tHead[colActive].name }}{{ rowActive + 1 }}
@@ -71,13 +70,10 @@
             </tr>
         </table>
     </div>
-    <app-footer/>
 </template>
 
 <script setup lang="ts">
 import {computed, nextTick, reactive, ref} from "vue"
-import OeHeader from "@/components/OeHeader.vue";
-import AppFooter from "@/components/AppFooter.vue";
 
 const props = defineProps({
     cols: {type: Number, default: 30},
