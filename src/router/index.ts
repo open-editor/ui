@@ -28,6 +28,11 @@ const router = createRouter({
       name: 'home-page',
       component: () => import('../views/HomeView.vue')
     },
+    {
+      path: '/sheet-editor',
+      name: 'sheet-editor',
+      component: () => import('../components/OeTable.vue')
+    }
   ]
 })
 
