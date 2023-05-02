@@ -323,7 +323,6 @@ const rowResize = (i: number, e: Event) => {
     const mouseMove = (event: Event) => {
         let mouseEvent = event as MouseEvent;
         rowsHeight.value[i] = rowHeight - (rowY - mouseEvent.pageY);
-        // row.style.maxWidth = rowWidth - (rowX - event.pageX) + "px";
     };
     document.addEventListener("mousemove", mouseMove);
     document.onmouseup = function () {
@@ -351,11 +350,7 @@ const duplicateContent = (e: Event) => {
         let absSelectedCellsY = Math.abs(selectedCellsY);
         let i = 1;
         const checkSelectedCells = () => {
-            //   if (this.colActive + i + 1 === this.cols) {
-            //     this.arrCells[this.rowActive][this.colActive + i].selected = true;
-            //     selectedCellsX -= this.tHead[this.colActive + i].width;
-            //     return;
-            //   }
+
             if (absSelectedCellsX >= absSelectedCellsY) {
                 // Make the default value
                 arrCells.value.forEach((row) => {
@@ -441,9 +436,7 @@ const duplicateContent = (e: Event) => {
             }
         });
     };
-    // e.target.ondragstart = function () {
-    //     return false;
-    // };
+
 };
 const onMouseOver = (rowInd: number, colInd: number) => {
     if (selection.startRow === null || selection.startCol === null) {
@@ -610,10 +603,7 @@ const duplicateSelectCells = (e: Event) => {
         let isStartDuplicate = false;
 
         let lastValue: number, step: number;
-        // if ((Number(selectedCellsValue[0][0]) ?? Number(selectedCellsValue[0][1])) && startRow === endRow && endCol - startCol === 1) {
-        //     lastValue = Number(selectedCellsValue[0][1]);
-        //     step = Number(selectedCellsValue[0][1]) - Number(selectedCellsValue[0][0]);
-        // }
+
         if (endCol - startCol <= 1 && endRow - startRow <= 1) {
             let numericalSeries: string[] = [];
             selectedCellsValue.forEach(i => {
@@ -658,9 +648,7 @@ const duplicateSelectCells = (e: Event) => {
             });
 
         });
-        // selectedCellsValue.forEach(row=>{
-        //     row.every(value=>typeof value === "number")
-        // })
+
     };
 }
 
