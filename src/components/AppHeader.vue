@@ -49,7 +49,7 @@
                         <ul class="py-1 font-light text-gray-500 dark:text-gray-400" aria-labelledby="dropdown">
                             <li>
                                 <RouterLink to="/"
-                                            class="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign
+                                            class="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Log
                                     out</RouterLink>
                             </li>
                         </ul>
