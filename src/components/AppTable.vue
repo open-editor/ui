@@ -1,5 +1,5 @@
 <template>
-    <div class="header flex items-stretch my-2.5">
+    <div class="header flex items-stretch my-2.5 mt-20">
         <div class="cellName px-2.5 py-1.5 text-center rounded-s-lg border border-gray-300 w-[5%]">
             {{ tHead[colActive].name }}{{ rowActive + 1 }}
         </div>
@@ -13,7 +13,7 @@
             />
         </div>
     </div>
-    <div class="table-wrapper select-none border border-gray-300 h-[calc(100vh-58px)] overflow-scroll">
+    <div class="table-wrapper select-none border border-gray-300 h-[calc(100vh-128px)] overflow-scroll">
         <table class="table w-max border-collapse cursor-cell">
             <tr>
                 <th class="border border-gray-300 text-center h-[30px] w-[100px] max-w-[100px] relative cursor-s-resize"></th>
@@ -25,7 +25,7 @@
                         class="border border-gray-300 text-center h-[30px] w-[100px] max-w-[100px] relative cursor-s-resize bor"
                 >
                     {{ tHead[i]?.name }}
-                    <span class="col-resize w-2 h-full absolute -right-1 z-10 cursor-col-resize" @mousedown="colResize(i, $event)"></span>
+                    <span class="col-resize w-2 h-full absolute -right-1 z-[2] cursor-col-resize" @mousedown="colResize(i, $event)"></span>
                 </th>
             </tr>
             <tr v-for="(row, rowInd) in arrCells" :key="rowInd" ref="refRows">
@@ -33,7 +33,7 @@
                     class="border border-gray-300 text-center h-[30px] relative cursor-e-resize"
                 >
                     {{ rowInd + 1 }}
-                    <span class="row-resize w-full h-1 absolute left-0 -bottom-1 z-10 cursor-row-resize" @mousedown="rowResize(rowInd, $event)"></span>
+                    <span class="row-resize w-full h-1 absolute left-0 -bottom-1 z-[2] cursor-row-resize" @mousedown="rowResize(rowInd, $event)"></span>
                 </td>
                 <td
                         v-for="(col, colInd) in arrCells[rowInd]"
@@ -57,11 +57,11 @@
                         {{ col.content }}
                     </div>
                     <span
-                            class="select-cells absolute z-10 -right-1.5 -bottom-1.5 w-2 h-2 border border-white cursor-crosshair bg-[#008200]"
+                            class="select-cells absolute z-[2] -right-1.5 -bottom-1.5 w-2 h-2 border border-white cursor-crosshair bg-[#008200]"
                             @mousedown="duplicateContent"
                             v-if="rowActive === rowInd && colActive === colInd && !duplicateSelection"
                     ></span>
-                    <span class="duplicate-selection absolute z-10 -right-1.5 -bottom-1.5 w-2 h-2 border border-white cursor-crosshair bg-black"
+                    <span class="duplicate-selection absolute z-[2] -right-1.5 -bottom-1.5 w-2 h-2 border border-white cursor-crosshair bg-black"
                           v-if="duplicateSelection && rowInd === bottomRightCell[0] && colInd === bottomRightCell[1]"
                           @mousedown="duplicateSelectCells"
                           @mouseup="duplicateSelectMove = false"
