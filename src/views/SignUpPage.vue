@@ -22,7 +22,7 @@
                                     <select id="day" name="day" required
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                         <option value="" disabled selected>Day</option>
-                                        <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
+                                        <option v-for="(day,i) in days" :key="i+1" :value="day">{{ day }}</option>
                                     </select>
                                 </div>
                                 <div class="w-full mr-4">
@@ -127,17 +127,15 @@ const onInput = (i: number, value: string) => {
 const yearNow = new Date().getFullYear();
 const daysMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
 const nameMonth = ["January","February","March","April","May","June","July", "August","September","October","November","December"]
-let birthYearSelected = ref(''),
-    birthMonthSelected = ref('');
+let birthYearSelected: Ref<string|number> = ref(''),
+    birthMonthSelected: Ref<string|number> = ref('');
 let years = Array.from(Array(100)).map((_,index)=>yearNow-6-index)
 
 const days = computed(()=>{
     console.log(birthMonthSelected.value)
-    if (birthMonthSelected.value == 1 && birthYearSelected.value % 4 == 0){
+    if (birthMonthSelected.value == 1 && (birthYearSelected.value as number) % 4 == 0){
         return 29
     }
-    if (daysMonth[birthMonthSelected.value]){
-        return daysMonth[birthMonthSelected.value]
-    } return 31
+    return daysMonth[birthMonthSelected.value as number] ? daysMonth[birthMonthSelected.value as number] : 31;
 })
 </script>
