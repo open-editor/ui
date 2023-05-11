@@ -115,7 +115,10 @@ onMounted(() => {
     initFlowbite();
 })
 const toggleClass = (e:Event) => {
-    e.target.parentElement.parentElement.querySelector('.text-primary-600').classList.remove('text-primary-600','pointer-events-none')
-    e.target.classList.add('text-primary-600','pointer-events-none')
+    const textPrimary = (e.target as HTMLElement).parentElement?.parentElement?.querySelector('.text-primary-600');
+    if (textPrimary) {
+        textPrimary.classList.remove('text-primary-600', 'pointer-events-none');
+    }
+    (e.target as HTMLElement).classList.add('text-primary-600','pointer-events-none')
 }
 </script>
