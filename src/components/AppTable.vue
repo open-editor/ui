@@ -22,7 +22,7 @@
                         :key="i"
                         :class="{ 'bg-black/10 border-b-2 border-b-[#008200]': i === colActive }"
                         :style="{width: tHead[i]?.width + 'px', maxWidth: tHead[i]?.width + 'px',}"
-                        class="border border-gray-300 text-center h-[30px] w-[100px] max-w-[100px] relative cursor-s-resize bor"
+                        class="border border-gray-300 text-center h-[30px] w-[100px] max-w-[100px] relative cursor-s-resize font-normal"
                 >
                     {{ tHead[i]?.name }}
                     <span class="col-resize w-2 h-full absolute -right-1 z-[2] cursor-col-resize" @mousedown="colResize(i, $event)"></span>
