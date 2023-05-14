@@ -29,10 +29,10 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')
     },
     {
-      path: '/sheet',
-      name: 'sheet',
-      component: () => import('../components/AppTable.vue')
-    }
+      path: '/sheet-page',
+      name: 'sheet-page',
+      component: () => import('../views/SheetView.vue')
+    },
   ]
 })
 
