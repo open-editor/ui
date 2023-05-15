@@ -140,6 +140,8 @@ const defaultSelectValue = () => {
     selection.endCol = null;
 }
 const onCreated = () => {
+    const tData = tableData.find(table => table.id === +route.params.id);
+
     for (let i = 0; i < props.rows; i++) {
         arrCells.value.push([]);
         rowsHeight.value.push(30);
@@ -155,6 +157,7 @@ const onCreated = () => {
                 col: j,
                 mathExp: ""
             });
+            arrCells.value[i][j].content = tData?.cellContent?.[i]?.[j] ?? ""
         }
     }
     arrCells.value[0][0].active = true;
@@ -164,14 +167,6 @@ const onCreated = () => {
         (refRows.value[0] as any).children[1].firstChild.focus();
     };
     focusOnCell();
-
-    const tData = tableData.find(table => table.id === +route.params.id);
-    console.log(route)
-    for (let i = 0; i < props.rows; i++) {
-        for (let j = 0; j < props.cols; j++) {
-            arrCells.value[i][j].content = tData.cellContent?.[i]?.[j] ?? ""
-        }
-    }
 }
 onCreated()
 const tableHeaderTitle = () => {
