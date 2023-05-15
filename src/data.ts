@@ -11,7 +11,7 @@ const data: Data[] = [
         id: 1,
         title: 'Table Lorem ipsum dolor sit 1',
         author: 'Petro',
-        date: '',
+        date: '01/01/2000',
         cellContent: [
             ['A1', 'B1', 'C1'],
             ['A2', 'B2', 'C2'],
@@ -21,7 +21,7 @@ const data: Data[] = [
         id: 2,
         title: 'Table Lorem ipsum dolor sit 2',
         author: 'Petro',
-        date: '',
+        date: '01/01/2000',
         cellContent: [
             ['A1', 'B1', 'C1'],
             ['A2', 'B2', 'C2'],
@@ -31,7 +31,7 @@ const data: Data[] = [
         id: 3,
         title: 'Table Lorem ipsum dolor sit 3',
         author: 'Petro',
-        date: '',
+        date: '01/01/2000',
         cellContent: [
             ['A1', 'B1', 'C1'],
             ['A2', 'B2', 'C2'],
@@ -42,7 +42,7 @@ const data: Data[] = [
         id: 4,
         title: 'Table Lorem ipsum dolor sit 4',
         author: 'Petro',
-        date: '',
+        date: '01/01/2000',
         cellContent: [
             ['A1', 'B1', 'C1'],
             ['A2', 'B2', 'C2'],
@@ -54,7 +54,7 @@ const data: Data[] = [
         id: 5,
         title: 'Table Lorem ipsum dolor sit 5',
         author: 'Petro',
-        date: '',
+        date: '01/01/2000',
         cellContent: [
             ['A1', 'B1', 'C1'],
             ['A2', 'B2', 'C2'],
@@ -67,7 +67,7 @@ const data: Data[] = [
         id: 6,
         title: 'Table Lorem ipsum dolor sit 6',
         author: 'Petro',
-        date: '',
+        date: '01/01/2000',
         cellContent: [
             ['A1', 'B1', 'C1'],
             ['A2', 'B2', 'C2'],
@@ -81,7 +81,7 @@ const data: Data[] = [
         id: 7,
         title: 'Table Lorem ipsum dolor sit 7',
         author: 'Petro',
-        date: '',
+        date: '01/01/2000',
         cellContent: [
             ['A1', 'B1', 'C1'],
             ['A2', 'B2', 'C2'],
