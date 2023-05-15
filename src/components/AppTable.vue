@@ -140,7 +140,7 @@ const defaultSelectValue = () => {
     selection.endCol = null;
 }
 const onCreated = () => {
-    const tData = tableData.find(table => table.id === +route.params.id);
+    const sheet = tableData.find(table => table.id === +route.params.id);
 
     for (let i = 0; i < props.rows; i++) {
         arrCells.value.push([]);
@@ -157,7 +157,7 @@ const onCreated = () => {
                 col: j,
                 mathExp: ""
             });
-            arrCells.value[i][j].content = tData?.cellContent?.[i]?.[j] ?? ""
+            arrCells.value[i][j].content = sheet?.cellContent?.[i]?.[j] ?? ""
         }
     }
     arrCells.value[0][0].active = true;
