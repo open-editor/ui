@@ -75,7 +75,6 @@
 <script setup lang="ts">
 import {computed, nextTick, reactive, ref} from "vue"
 import tableData from '@/data'
-import router from "@/router";
 import {useRoute} from "vue-router";
 
 const route = useRoute();
