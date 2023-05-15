@@ -1,5 +1,5 @@
 <template>
-    <div class="header flex items-stretch my-2.5 mt-20">
+    <div class="header flex items-stretch my-2.5" v-bind="$attrs">
         <div class="cellName px-2.5 py-1.5 text-center rounded-s-lg border border-gray-300 w-[5%]">
             {{ tHead[colActive].name }}{{ rowActive + 1 }}
         </div>
@@ -74,6 +74,11 @@
 
 <script setup lang="ts">
 import {computed, nextTick, reactive, ref} from "vue"
+import tableData from '@/data'
+import router from "@/router";
+import {useRoute} from "vue-router";
+
+const route = useRoute();
 
 const props = defineProps({
     cols: {type: Number, default: 30},
@@ -159,6 +164,14 @@ const onCreated = () => {
         (refRows.value[0] as any).children[1].firstChild.focus();
     };
     focusOnCell();
+
+    const tData = tableData.find(table => table.id === +route.params.id);
+    console.log(route)
+    for (let i = 0; i < props.rows; i++) {
+        for (let j = 0; j < props.cols; j++) {
+            arrCells.value[i][j].content = tData.cellContent?.[i]?.[j] ?? ""
+        }
+    }
 }
 onCreated()
 const tableHeaderTitle = () => {

@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/LoginView.vue')
+      component: () => import('../views/LoginView.vue'),
+      props:true
     },
     {
       path: '/sign-up',
@@ -29,7 +29,7 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')
     },
     {
-      path: '/sheet-page',
+      path: '/sheet-page/:id',
       name: 'sheet-page',
       component: () => import('../views/SheetView.vue')
     },
