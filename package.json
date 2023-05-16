@@ -17,10 +17,12 @@
     "flowbite": "^1.6.5",
     "flowbite-vue": "^0.0.10",
     "pinia": "^2.0.36",
+    "timeago.js": "^4.0.2",
     "vue": "^3.3.2",
     "vue-router": "^4.2.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.0.1",
     "@playwright/test": "^1.33.0",
     "@rushstack/eslint-patch": "^1.2.0",
     "@tsconfig/node16": "^1.0.3",

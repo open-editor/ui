@@ -1,6 +1,6 @@
 <template>
   <app-header/>
-  <app-table/>
+  <app-table class="mt-20"/>
   <app-footer/>
 </template>
 
