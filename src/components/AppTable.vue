@@ -139,7 +139,8 @@ const defaultSelectValue = () => {
     selection.endCol = null;
 }
 const onCreated = () => {
-    const sheet = tableData.find(table => table.id === +route.params.id);
+    const sheet = tableData.value.find(table => table.id === +route.params.id);
+    console.log(tableData)
 
     for (let i = 0; i < props.rows; i++) {
         arrCells.value.push([]);

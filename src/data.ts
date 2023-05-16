@@ -1,97 +1,32 @@
-interface Data {
-    title: string,
-    author: string,
-    lastOpened: string,
+interface allSheets {
     id: number,
+    name: string,
+    ownedBy: string,
+    lastOpened: string,
     cellContent:string[][]
 }
+import type {Ref} from "vue";
+import {ref} from "vue";
+import { faker } from '@faker-js/faker';
+import { format } from 'timeago.js';
+const ELEMENTS_COUNT = 500;
 
-const data: Data[] = [
-    {
-        id: 1,
-        title: 'Table Lorem ipsum dolor sit 1',
-        author: 'Petro',
-        lastOpened: '10/05/2023',
-        cellContent: [
-            ['A1', 'B1', 'C1'],
-            ['A2', 'B2', 'C2'],
-        ]
-    },
-    {
-        id: 2,
-        title: 'Table Lorem ipsum dolor sit 2',
-        author: 'Petro',
-        lastOpened: '10/05/2023',
-        cellContent: [
-            ['A1', 'B1', 'C1'],
-            ['A2', 'B2', 'C2'],
-        ]
-    },
-    {
-        id: 3,
-        title: 'Table Lorem ipsum dolor sit 3',
-        author: 'Petro',
-        lastOpened: '10/05/2023',
-        cellContent: [
-            ['A1', 'B1', 'C1'],
-            ['A2', 'B2', 'C2'],
-            ['A3', 'B3', 'C3'],
-        ]
-    },
-    {
-        id: 4,
-        title: 'Table Lorem ipsum dolor sit 4',
-        author: 'Petro',
-        lastOpened: '10/05/2023',
-        cellContent: [
-            ['A1', 'B1', 'C1'],
-            ['A2', 'B2', 'C2'],
-            ['A3', 'B3', 'C3'],
-            ['A4', 'B4', 'C4'],
-        ]
-    },
-    {
-        id: 5,
-        title: 'Table Lorem ipsum dolor sit 5',
-        author: 'Petro',
-        lastOpened: '10/05/2023',
-        cellContent: [
-            ['A1', 'B1', 'C1'],
-            ['A2', 'B2', 'C2'],
-            ['A3', 'B3', 'C3'],
-            ['A4', 'B4', 'C4'],
-            ['A5', 'B5', 'C5'],
-        ]
-    },
-    {
-        id: 6,
-        title: 'Table Lorem ipsum dolor sit 6',
-        author: 'Petro',
-        lastOpened: '10/05/2023',
-        cellContent: [
-            ['A1', 'B1', 'C1'],
-            ['A2', 'B2', 'C2'],
-            ['A3', 'B3', 'C3'],
-            ['A4', 'B4', 'C4'],
-            ['A5', 'B5', 'C5'],
-            ['A6', 'B6', 'C6'],
-        ]
-    },
-    {
-        id: 7,
-        title: 'Table Lorem ipsum dolor sit 7',
-        author: 'Petro',
-        lastOpened: '10/05/2023',
-        cellContent: [
-            ['A1', 'B1', 'C1'],
-            ['A2', 'B2', 'C2'],
-            ['A3', 'B3', 'C3'],
-            ['A4', 'B4', 'C4'],
-            ['A5', 'B5', 'C5'],
-            ['A6', 'B6', 'C6'],
-            ['A7', 'B7', 'C7'],
-        ]
-    },
+const allSheets: Ref<allSheets[]> = ref([]);
 
-];
-export default data;
+for (let i = 0; i < ELEMENTS_COUNT; i++) {
+    allSheets.value.push({
+        id: i,
+        name: `${i + 1}. ${faker.word.words({ count: { min: 5, max: 10 } })}`,
+        ownedBy: faker.person.fullName(),
+        lastOpened: format(faker.date.past()),
+        cellContent: [
+            [faker.number.int(10000).toString(), faker.string.numeric(), 'C1'],
+            [faker.number.int(10000).toString(), '', faker.number.int(10000).toString()],
+            ['A3', 'B3', 'C3'],
+            ['A4', faker.string.alpha(), ''],
+        ]
+    })
+}
+
+
+export default allSheets;
