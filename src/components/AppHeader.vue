@@ -1,12 +1,20 @@
-<template>
+<template xmlns:input="http://www.w3.org/1999/html">
     <header class="w-full  bg-slate-50 shadow-md flex fixed top-0 mx-auto z-10">
         <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800 w-full">
             <div class="flex flex-wrap justify-between items-center mx-auto">
-                <a href="/" class="flex items-center">
+                <a href="/" class="flex items-center"  v-if="$route.name !== 'sheet-page'">
                     <img src="@/assets/logo.png" class="mr-3 h-6 sm:h-10 rounded-lg"
                          alt="Open Editor Logo"/>
                     <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Open Editor</span>
                 </a>
+                <div v-else class="flex items-center">
+                    <a href="/">
+                        <img src="@/assets/logo.png" class="mr-3 h-6 sm:h-10 rounded-lg"
+                             alt="Open Editor Logo"/>
+                    </a>
+                    <span @dblclick="changeTableName" id="table_name-span" class="self-center text-xl font-normal dark:text-white w-max max-w-[275px] text-ellipsis whitespace-nowrap overflow-hidden">{{ sheets[$route.params.id].name }}</span>
+                    <input placeholder="Untitled" type="text" name="title" id="table_name-input" @keyup.enter="submitChange" class="hidden w-[275px] p-0 border-none text-xl" v-model.trim="sheets[$route.params.id].name">
+                </div>
                 <div class="flex items-center lg:order-2">
                     <button type="button"
                             class="flex mx-3 text-2xl px-1 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
@@ -108,8 +116,9 @@
 
 <script lang="ts" setup>
 import {RouterLink, RouterView} from "vue-router";
-import {onMounted} from "vue";
+import {nextTick, onMounted} from "vue";
 import {initFlowbite} from "flowbite";
+import sheets from "@/data";
 
 onMounted(() => {
     initFlowbite();
@@ -120,5 +129,19 @@ const toggleClass = (e:Event) => {
         textPrimary.classList.remove('text-primary-600', 'pointer-events-none');
     }
     (e.target as HTMLElement).classList.add('text-primary-600','pointer-events-none')
+}
+const changeTableName = async (e) =>{
+    e.target.classList.add('hidden');
+    e.target.parentElement.lastElementChild.classList.remove('hidden');
+    await nextTick();
+    e.target.parentElement.lastElementChild.focus();
+}
+
+const submitChange = (e) => {
+    e.target.value.trim() === "" ? e.target.value = "Untitled" : 1
+    e.target.dispatchEvent(new Event('input'));
+    e.target.classList.add('hidden');
+    e.target.parentElement.querySelector('#table_name-span').classList.remove('hidden')
+    console.log(sheets)
 }
 </script>
