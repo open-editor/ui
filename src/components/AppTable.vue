@@ -72,11 +72,11 @@
     </div>
     <div class="absolute h-10 bottom-0 bg-gray-100 shadow-inner w-[100vw] flex items-center z-[3] overflow-x-scroll">
         <div class="my-1 mx-4 text-2xl cursor-pointer" @click="addSheet">+</div>
-        <div v-for="(sheet,i) in curTable.sheets" :key="i" :class="{'border border-primary-600':i===curSheet}"
+        <div v-for="(sheet,i) in curTable!.sheets" :key="i" :class="{'border border-primary-600':i===curSheet}"
              class="sheet-div px-2 py-1 bg-transparent cursor-pointer rounded-lg relative mr-3 group" @click="switchSheet(i)"
         >
             {{sheet.name}}
-        <span @click="removeSheet($event,i)" v-if="curTable.sheets.length>1" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</span>
+        <span @click="removeSheet($event,i)" v-if="curTable && curTable.sheets.length>1" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</span>
         </div>
     </div>
 </template>
@@ -173,7 +173,7 @@ const onCreated = () => {
             arrCellsBody[i][j] = arrCells.value[i][j].content
         }
     }
-    currentTable.sheets[curSheet.value].cellContent = arrCellsBody
+    currentTable!.sheets[curSheet.value].cellContent = arrCellsBody
     arrCells.value[0][0].active = true;
     arrCells.value[0][0].editable = true;
     const focusOnCell = async () => {
@@ -232,32 +232,31 @@ const activeCell = (cell: Cell, e: Event) => {
     parseExpression(cell)
 
 }
-const inputCell = (rowI,colI,e) => {
+const inputCell = (rowI:number,colI:number,e:Event) => {
 
     arrCells.value[rowI][colI].content = (e.target as HTMLElement).textContent ?? '';
-    curTable.sheets[curSheet.value].cellContent[rowI][colI] = arrCells.value[rowI][colI].content;
-    // console.log(curTable.sheets[curSheet.value].cellContent[rowI][colI])
+    curTable!.sheets[curSheet.value].cellContent[rowI][colI] = arrCells.value[rowI][colI].content;
 }
 const addSheet = () => {
     sheetsCounter++;
-    curTable.sheets.push({name:`Sheet${sheetsCounter}`,cellContent:[[`${sheetsCounter}`]]})
+    curTable!.sheets.push({name:`Sheet${sheetsCounter}`,cellContent:[[`${sheetsCounter}`]]})
 }
-const switchSheet = (i) => {
+const switchSheet = (i:number) => {
     curSheet.value = i;
     let arrCellsBody:string[][] = []
     for (let r = 0; r < props.rows; r++) {
         arrCellsBody.push([]);
         for (let c = 0; c < props.cols; c++) {
-            arrCells.value[r][c].content = curTable.sheets[i]?.cellContent?.[r]?.[c] ?? ""
+            arrCells.value[r][c].content = curTable!.sheets[i]?.cellContent?.[r]?.[c] ?? ""
             arrCellsBody[r][c] = arrCells.value[r][c].content
         }
     }
-    curTable.sheets[curSheet.value].cellContent = arrCellsBody
+    curTable!.sheets[curSheet.value].cellContent = arrCellsBody
 }
-const removeSheet = (e,i) => {
+const removeSheet = (e:Event,i:number) => {
     let temp = curSheet.value;
     e.stopPropagation();
-    curTable.sheets.splice(i,1)
+    curTable!.sheets.splice(i,1)
     temp !== i ? temp < i ? switchSheet(temp) : switchSheet(temp - 1) : switchSheet(0)
 }
 const parseExpression = (cell: Cell) => {
