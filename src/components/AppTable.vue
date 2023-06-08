@@ -69,14 +69,14 @@
                 </td>
             </tr>
         </table>
-    </div>
-    <div class="absolute h-10 bottom-0 bg-gray-100 shadow-inner w-[100vw] flex items-center z-[3] overflow-x-scroll">
-        <div class="my-1 mx-4 text-2xl cursor-pointer" @click="addSheet">+</div>
-        <div v-for="(sheet,i) in curTable!.sheets" :key="i" :class="{'border border-primary-600':i===curSheet}"
-             class="sheet-div px-2 py-1 bg-transparent cursor-pointer rounded-lg relative mr-3 group" @click="switchSheet(i)"
-        >
-            {{sheet.name}}
-        <span @click="removeSheet($event,i)" v-if="curTable && curTable.sheets.length>1" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</span>
+        <div class="absolute h-10 bottom-0 bg-gray-100 shadow-inner w-[100vw] flex items-center z-[3] overflow-x-scroll">
+            <div class="my-1 mx-4 text-2xl cursor-pointer" @click="addSheet">+</div>
+            <div v-for="(sheet,i) in curTable!.sheets" :key="i" :class="{'border border-primary-600':i===curSheet}"
+                 class="sheet-div px-2 py-1 bg-transparent cursor-pointer rounded-lg relative mr-3 group" @click="switchSheet(i)"
+            >
+                {{sheet.name}}
+            <span @click="removeSheet($event,i)" v-if="curTable && curTable.sheets.length>1" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</span>
+            </div>
         </div>
     </div>
 </template>
@@ -148,8 +148,7 @@ const defaultSelectValue = () => {
     selection.endCol = null;
 }
 const curTable = tableData.value.find(table => table.id === +route.params.id);
-let curSheet = ref(0), sheetsCounter = 1;
-
+let curSheet = ref(0);
 const onCreated = () => {
     const currentTable = tableData.value.find(table => table.id === +route.params.id);
     let arrCellsBody:string[][] = []
@@ -173,6 +172,7 @@ const onCreated = () => {
             arrCellsBody[i][j] = arrCells.value[i][j].content
         }
     }
+    // console.log(currentTable)
     currentTable!.sheets[curSheet.value].cellContent = arrCellsBody
     arrCells.value[0][0].active = true;
     arrCells.value[0][0].editable = true;
@@ -237,6 +237,8 @@ const inputCell = (rowI:number,colI:number,e:Event) => {
     arrCells.value[rowI][colI].content = (e.target as HTMLElement).textContent ?? '';
     curTable!.sheets[curSheet.value].cellContent[rowI][colI] = arrCells.value[rowI][colI].content;
 }
+
+let sheetsCounter = curTable!.sheets.length;
 const addSheet = () => {
     sheetsCounter++;
     curTable!.sheets.push({name:`Sheet${sheetsCounter}`,cellContent:[[`${sheetsCounter}`]]})
