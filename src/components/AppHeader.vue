@@ -126,7 +126,7 @@ onMounted(() => {
 
 const router = useRouter();
 const routerName = router.currentRoute.value.name
-const routerParamsId = Number(router.currentRoute.value.params.id)
+const routerSheetId = Number(router.currentRoute.value.params.id) || 0
 
 const toggleClass = (e:Event) => {
     const textPrimary = (e.target as HTMLElement).parentElement?.parentElement?.querySelector('.text-primary-600');
@@ -135,7 +135,7 @@ const toggleClass = (e:Event) => {
     }
     (e.target as HTMLElement).classList.add('text-primary-600','pointer-events-none')
 }
-const tableTitle:Ref<string> = ref(sheets.value[routerParamsId].name);
+const tableTitle:Ref<string> = ref(sheets.value[routerSheetId].name);
 const title_span: Ref<HTMLSpanElement|null> = ref(null)
 const title_input: Ref<HTMLInputElement|null> = ref(null)
 const changeTableName = async () =>{
@@ -147,7 +147,7 @@ const changeTableName = async () =>{
 
 const submitChange = () => {
     tableTitle.value.trim() === "" ? tableTitle.value = "Untitled" :
-    sheets.value[routerParamsId].name = tableTitle.value;
+    sheets.value[routerSheetId].name = tableTitle.value;
     title_input.value!.classList.add('hidden');
     title_span.value!.classList.remove('hidden')
 }
