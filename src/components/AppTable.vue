@@ -172,7 +172,6 @@ const onCreated = () => {
             arrCellsBody[i][j] = arrCells.value[i][j].content
         }
     }
-    // console.log(currentTable)
     currentTable!.sheets[curSheet.value].cellContent = arrCellsBody
     arrCells.value[0][0].active = true;
     arrCells.value[0][0].editable = true;
@@ -250,6 +249,9 @@ const switchSheet = (i:number) => {
         arrCellsBody.push([]);
         for (let c = 0; c < props.cols; c++) {
             arrCells.value[r][c].content = curTable!.sheets[i]?.cellContent?.[r]?.[c] ?? ""
+            if (curTable!.sheets[i]?.cellContent?.[r]?.[c]?.[0] === "="){
+                parseExpression(arrCells.value[r][c])
+            }
             arrCellsBody[r][c] = arrCells.value[r][c].content
         }
     }
@@ -270,16 +272,13 @@ const parseExpression = (cell: Cell) => {
         }
     }
 
-    let mathExpression = arrCells.value[oldCellPosition.row][oldCellPosition.col].content;
+    let mathExpression = cell.content;
 
     if (mathExpression[0] === "=") {
-        arrCells.value[oldCellPosition.row][oldCellPosition.col].mathExp = mathExpression;
+        cell.mathExp = mathExpression;
         mathExpression = mathExpression.slice(1);
-        arrCells.value[oldCellPosition.row][oldCellPosition.col].content = parse(mathExpression);
+        cell.content = parse(mathExpression);
     }
-    oldCellPosition.row = cell.row;
-    oldCellPosition.col = cell.col;
-
 }
 const changeContent = (col: Cell, event: Event) => {
     col.content = (event.target as HTMLElement).textContent ?? ''
@@ -288,7 +287,6 @@ const changeContent = (col: Cell, event: Event) => {
     }
 }
 const changeInput = (event: Event) => {
-    console.log(arrCells.value[rowActive.value][colActive.value].mathExp)
     const input = event.target as HTMLInputElement
     arrCells.value[rowActive.value][colActive.value].content = input!.value
     if (input.value[0] === "=") {
@@ -705,12 +703,3 @@ const duplicateSelectCells = (e: Event) => {
 }
 
 </script>
-
-<!--<style>-->
-<!--.crest{-->
-<!--    visibility: hidden;-->
-<!--}-->
-<!--.sheet-div:hover .crest{-->
-<!--    visibility: visible;-->
-<!--}-->
-<!--</style>-->
