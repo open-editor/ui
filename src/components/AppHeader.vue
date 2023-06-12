@@ -2,11 +2,19 @@
     <header class="w-full  bg-slate-50 shadow-md flex fixed top-0 mx-auto z-10">
         <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800 w-full">
             <div class="flex flex-wrap justify-between items-center mx-auto">
-                <a href="/" class="flex items-center">
+                <a href="/" class="flex items-center"  v-if="routerName !== 'sheet-page'">
                     <img src="@/assets/logo.png" class="mr-3 h-6 sm:h-10 rounded-lg"
                          alt="Open Editor Logo"/>
                     <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Open Editor</span>
                 </a>
+                <div v-else class="flex items-center">
+                    <a href="/">
+                        <img src="@/assets/logo.png" class="mr-3 h-6 sm:h-10 rounded-lg"
+                             alt="Open Editor Logo"/>
+                    </a>
+                    <span ref="title_span" @dblclick="changeTableName" id="table_name-span" class="self-center text-xl font-normal dark:text-white w-max max-w-[275px] min-w-[275px] text-ellipsis whitespace-nowrap overflow-hidden">{{ tableTitle }}</span>
+                    <input ref="title_input" placeholder="Untitled" type="text" name="title" id="table_name-input" @keyup.enter="submitChange" class="hidden w-[275px] p-0 border-none text-xl" v-model.trim="tableTitle">
+                </div>
                 <div class="flex items-center lg:order-2">
                     <button type="button"
                             class="flex mx-3 text-2xl px-1 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
@@ -107,18 +115,40 @@
 </template>
 
 <script lang="ts" setup>
-import {RouterLink, RouterView} from "vue-router";
-import {onMounted} from "vue";
+import { RouterLink, RouterView, useRouter} from "vue-router";
+import {nextTick, onMounted, type Ref, ref} from "vue";
 import {initFlowbite} from "flowbite";
+import sheets from "@/data";
 
 onMounted(() => {
     initFlowbite();
 })
+
+const router = useRouter();
+const routerName = router.currentRoute.value.name
+const routerSheetId = Number(router.currentRoute.value.params.id) || 0
+
 const toggleClass = (e:Event) => {
     const textPrimary = (e.target as HTMLElement).parentElement?.parentElement?.querySelector('.text-primary-600');
     if (textPrimary) {
         textPrimary.classList.remove('text-primary-600', 'pointer-events-none');
     }
     (e.target as HTMLElement).classList.add('text-primary-600','pointer-events-none')
+}
+const tableTitle:Ref<string> = ref(sheets.value[routerSheetId].name);
+const title_span: Ref<HTMLSpanElement|null> = ref(null)
+const title_input: Ref<HTMLInputElement|null> = ref(null)
+const changeTableName = async () =>{
+    title_span.value!.classList.add('hidden');
+    title_input.value!.classList.remove('hidden');
+    await nextTick();
+    title_input.value!.focus();
+}
+
+const submitChange = () => {
+    tableTitle.value.trim() === "" ? tableTitle.value = "Untitled" :
+    sheets.value[routerSheetId].name = tableTitle.value;
+    title_input.value!.classList.add('hidden');
+    title_span.value!.classList.remove('hidden')
 }
 </script>
