@@ -495,7 +495,12 @@ const ELEMENTS_PER_PAGE = 10;
 
 const currentPage = ref(1);
 
-const allSheets = ref([]);
+interface Sheet {
+  name: string;
+  ownedBy: string;
+  lastOpened: string;
+}
+const allSheets = ref<Sheet[]>([]);
 for (let i = 0; i < ELEMENTS_COUNT; i++) {
     allSheets.value.push({
         name: `${i + 1}. ${faker.word.words({ count: { min: 5, max: 10 } })}`,
@@ -511,7 +516,7 @@ const previousPageClasses = computed(() => currentPage.value === 1
     ? `opacity-40 pointer-events-none ${DEFAULT_PAGINATION_CLASSES}`
     : `hover:bg-gray-100 hover:text-gray-700 ${DEFAULT_PAGINATION_CLASSES}`);
 
-function setPage(page) {
+function setPage(page: number) {
     console.log('page', page);
     currentPage.value = page;
 }
