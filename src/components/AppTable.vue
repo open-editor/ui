@@ -1,5 +1,5 @@
 <template>
-    <div class="header flex items-stretch my-2.5 mt-20">
+    <div class="header flex items-stretch my-2.5" v-bind="$attrs">
         <div class="cellName px-2.5 py-1.5 text-center rounded-s-lg border border-gray-300 w-[5%]">
             {{ tHead[colActive].name }}{{ rowActive + 1 }}
         </div>
@@ -74,6 +74,10 @@
 
 <script setup lang="ts">
 import {computed, nextTick, reactive, ref} from "vue"
+import tableData from '@/data'
+import {useRoute} from "vue-router";
+
+const route = useRoute();
 
 const props = defineProps({
     cols: {type: Number, default: 30},
@@ -135,6 +139,9 @@ const defaultSelectValue = () => {
     selection.endCol = null;
 }
 const onCreated = () => {
+    const sheet = tableData.value.find(table => table.id === +route.params.id);
+    console.log(tableData)
+
     for (let i = 0; i < props.rows; i++) {
         arrCells.value.push([]);
         rowsHeight.value.push(30);
@@ -150,6 +157,7 @@ const onCreated = () => {
                 col: j,
                 mathExp: ""
             });
+            arrCells.value[i][j].content = sheet?.cellContent?.[i]?.[j] ?? ""
         }
     }
     arrCells.value[0][0].active = true;
