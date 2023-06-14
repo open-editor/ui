@@ -83,7 +83,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, Ref, ref } from "vue";
+import { computed, nextTick, reactive, ref } from "vue";
+import type { Ref } from "vue";
 import tableData from '@/data'
 import {useRoute} from "vue-router";
 import DeleteModal from "@/components/Modal/DeleteModal.vue";
