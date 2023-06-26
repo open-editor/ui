@@ -75,17 +75,21 @@
                  class="sheet-div px-2 py-1 bg-transparent cursor-pointer rounded-lg relative mr-3 group" @click="switchSheet(i)"
             >
                 {{sheet.name}}
-            <span @click="removeSheet($event,i)" v-if="curTable && curTable.sheets.length>1" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</span>
+            <button v-if="curTable && curTable.sheets.length>1" @click="removeItem = i" type="button"  data-modal-target="deleteM" data-modal-toggle="deleteM" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</button>
             </div>
         </div>
     </div>
+    <delete-modal modal-id="deleteM" v-if="curTable && curTable.sheets.length>1" @remove-sheet="removeSheet(removeItem)"/>
 </template>
 
 <script setup lang="ts">
-import {computed, nextTick, reactive, ref} from "vue"
+import { computed, nextTick, reactive, ref } from "vue";
+import type { Ref } from "vue";
 import tableData from '@/data'
 import {useRoute} from "vue-router";
-
+import DeleteModal from "@/components/Modal/DeleteModal.vue";
+import { initFlowbite } from "flowbite";
+import { format } from "timeago.js";
 const route = useRoute();
 
 const props = defineProps({
@@ -110,16 +114,6 @@ interface Selection {
     startCol: number | null,
     endRow: number | null,
     endCol: number | null,
-}
-
-interface oldCellPos {
-    col: number,
-    row: number
-}
-
-const oldCellPosition: oldCellPos = {
-    col: 0,
-    row: 0,
 }
 
 const arrCells = ref<Cell[][]>([]),
@@ -180,6 +174,8 @@ const onCreated = () => {
         (refRows.value[0] as any).children[1].firstChild.focus();
     };
     focusOnCell();
+
+    currentTable!.lastOpened = format(new Date())
 }
 onCreated()
 
@@ -238,9 +234,12 @@ const inputCell = (rowI:number,colI:number,e:Event) => {
 }
 
 let sheetsCounter = curTable!.sheets.length;
-const addSheet = () => {
+const addSheet = async () => {
     sheetsCounter++;
     curTable!.sheets.push({name:`Sheet${sheetsCounter}`,cellContent:[[`${sheetsCounter}`]]})
+
+    await nextTick();
+    initFlowbite()
 }
 const switchSheet = (i:number) => {
     curSheet.value = i;
@@ -257,11 +256,13 @@ const switchSheet = (i:number) => {
     }
     curTable!.sheets[curSheet.value].cellContent = arrCellsBody
 }
-const removeSheet = (e:Event,i:number) => {
+
+const removeItem: Ref<number> = ref(0)
+const removeSheet = (i:number) => {
     let temp = curSheet.value;
-    e.stopPropagation();
     curTable!.sheets.splice(i,1)
     temp !== i ? temp < i ? switchSheet(temp) : switchSheet(temp - 1) : switchSheet(0)
+
 }
 const parseExpression = (cell: Cell) => {
     function parse(str: string) {
