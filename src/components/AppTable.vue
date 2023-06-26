@@ -89,6 +89,7 @@ import tableData from '@/data'
 import {useRoute} from "vue-router";
 import DeleteModal from "@/components/Modal/DeleteModal.vue";
 import { initFlowbite } from "flowbite";
+import { format } from "timeago.js";
 const route = useRoute();
 
 const props = defineProps({
@@ -173,6 +174,8 @@ const onCreated = () => {
         (refRows.value[0] as any).children[1].firstChild.focus();
     };
     focusOnCell();
+
+    currentTable.lastOpened = format(new Date())
 }
 onCreated()
 
