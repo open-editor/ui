@@ -175,7 +175,7 @@ const onCreated = () => {
     };
     focusOnCell();
 
-    currentTable.lastOpened = format(new Date())
+    currentTable!.lastOpened = format(new Date())
 }
 onCreated()
 
