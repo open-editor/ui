@@ -10,8 +10,7 @@
                     <div class="w-full md:w-1/2">
                     </div>
                     <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                        <button type="button" id="createProductModalButton" data-modal-target="createProductModal"
-                                data-modal-toggle="createProductModal"
+                        <button type="button" id="createTableBtn" @click="createTable"
                                 class="flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800">
                             <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20"
                                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -195,7 +194,7 @@
                         </li>
                         <li>
                             <a href="#"
-                               @click="setPage(ELEMENTS_COUNT)"
+                               @click="setPage(ELEMENTS_COUNT/ELEMENTS_PER_PAGE)"
                                class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">{{ELEMENTS_COUNT/ELEMENTS_PER_PAGE}}</a>
                         </li>
                         <li>
@@ -485,6 +484,10 @@ import { faker } from '@faker-js/faker';
 import { format } from 'timeago.js';
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
+import tableData from "@/data";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 onMounted(() => {
     initFlowbite();
@@ -503,9 +506,9 @@ interface Sheet {
 const allSheets = ref<Sheet[]>([]);
 for (let i = 0; i < ELEMENTS_COUNT; i++) {
     allSheets.value.push({
-        name: `${i + 1}. ${faker.word.words({ count: { min: 5, max: 10 } })}`,
-        ownedBy: faker.person.fullName(),
-        lastOpened: format(faker.date.past()),
+        name: tableData.value[i].name,
+        ownedBy: tableData.value[i].ownedBy,
+        lastOpened: tableData.value[i].lastOpened,
     })
 }
 
@@ -526,4 +529,24 @@ const ownerTypes = [
     'owned by me1',
     'owned by me2',
 ]
+const createTable = () =>{
+    tableData.value.push({
+        id: tableData.value.length,
+        name: `Untitled`,
+        ownedBy: faker.person.fullName(),
+        lastOpened: format(faker.date.past()),
+        sheets: [
+            {
+                name: 'Sheet1',
+                cellContent: [['hello']]
+            }
+        ],
+    })
+    allSheets.value.push({
+        name: tableData.value[tableData.value.length-1].name,
+        ownedBy:tableData.value[tableData.value.length-1].ownedBy,
+        lastOpened: tableData.value[tableData.value.length-1].lastOpened
+    })
+    router.push(`/sheet-page/${tableData.value.length-1}`)
+}
 </script>
