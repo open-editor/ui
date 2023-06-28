@@ -79,7 +79,7 @@
             </div>
         </div>
     </div>
-    <delete-modal modal-id="deleteM" v-if="curTable && curTable.sheets.length>1" @remove-sheet="removeSheet(removeItem)"/>
+<!--    <delete-modal modal-id="deleteM" v-if="curTable && curTable.sheets.length>1" @remove-sheet="removeSheet(removeItem)"/>-->
 </template>
 
 <script setup lang="ts">
