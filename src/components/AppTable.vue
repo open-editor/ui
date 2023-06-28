@@ -667,16 +667,16 @@ const duplicateSelectCells = (e: Event) => {
             lastValue = Number(numericalSeries[1])
             step = lastValue - Number(numericalSeries[0]);
 
-            numericalSeries.forEach(i => {
+            for (const i of numericalSeries) {
                 const [day,month,year] = i.split('.');
                 if (+day && +month && +year ){
                     isDate = true
                     dates.push(new Date(+year,+month-1,+day))
                 } else {
                     isDate = false;
-                    return
+                    break
                 }
-            })
+            }
             if (isDate){
                 step = dates[1].getTime() - dates[0].getTime();
                 lastValue = +dates[1];
@@ -701,38 +701,38 @@ const duplicateSelectCells = (e: Event) => {
                         if (colIndex > endCol) {
                             cell.content = String(lastValue + step);
                             if (isDate){
-                                let date: (number|string)[]|Date = new Date(lastValue + step)
-                                date = [date.getDate(),date.getMonth()+1,date.getFullYear()]
-                                date.forEach((i:number,index:number) => date[index] = i / 10 < 1 ? i.toString().padStart(2, '0') : i)
-                                cell.content =date[0] + "." + date[1] + "." + date[2];
+                                const fullDate:Date = new Date(lastValue + step)
+                                const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
+                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                             lastValue += step;
                         } else {
                             cell.content = String(lastValue - step * (startCol - colIndex + 1));
                             if (isDate){
-                                let date: (number|string)[]|Date = new Date(lastValue - step * (startCol - colIndex + 1))
-                                date = [date.getDate(),date.getMonth()+1,date.getFullYear()]
-                                date.forEach((i:number,index:number) => date[index] = i / 10 < 1 ? i.toString().padStart(2, '0') : i)
-                                cell.content =date[0] + "." + date[1] + "." + date[2];
+                                const fullDate:Date = new Date(lastValue - step * (startCol - colIndex + 1))
+                                const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
+                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                         }
                     } else if (lastValue && step && rowIndex != endRow && rowIndex != startRow && startCol === endCol) {
                         if (rowIndex > endRow) {
                             cell.content = String(lastValue + step);
                             if (isDate){
-                                let date: (number|string)[]|Date = new Date(lastValue + step)
-                                date = [date.getDate(),date.getMonth()+1,date.getFullYear()]
-                                date.forEach((i:number,index:number) => date[index] = i / 10 < 1 ? i.toString().padStart(2, '0') : i)
-                                cell.content =date[0] + "." + date[1] + "." + date[2];
+                                const fullDate:Date = new Date(lastValue + step)
+                                const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
+                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                             lastValue += step;
                         } else {
                             cell.content = String(lastValue - step * (startRow - rowIndex + 1));
                             if (isDate){
-                                let date: (number|string)[]|Date = new Date(lastValue - step * (startRow - rowIndex + 1))
-                                date = [date.getDate(),date.getMonth()+1,date.getFullYear()]
-                                date.forEach((i:number,index:number) => date[index] = i / 10 < 1 ? i.toString().padStart(2, '0') : i)
-                                cell.content =date[0] + "." + date[1] + "." + date[2];
+                                const fullDate:Date = new Date(lastValue - step * (startRow - rowIndex + 1))
+                                const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
+                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                         }
                     }
