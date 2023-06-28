@@ -311,7 +311,6 @@ function openDotList(sheet: Sheet) {
 }
 function sortingByOwnedBy() {
 sortedOnce = !sortedOnce;
-  console.log(1)
   if (sortedOnce) {
     allSheets.value.sort((a, b) => b.ownedBy.localeCompare(a.ownedBy));
   } else{
@@ -325,7 +324,6 @@ function sortingByDate(){
   } else{
     allSheets.value.sort((a, b) => a.lastOpened.localeCompare(b.lastOpened));
   }
-  console.log(2)
 }
 
 function sortingByName(){
@@ -335,6 +333,5 @@ function sortingByName(){
   } else{
     allSheets.value.sort((a, b) => a.name.localeCompare(b.name));
   }
-  console.log(3)
 }
 </script>
