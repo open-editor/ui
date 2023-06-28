@@ -179,8 +179,8 @@ const onCreated = () => {
 }
 onCreated()
 
+const letterArr: string[] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 const tableHeaderTitle = () => {
-    const letterArr: string[] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
     for (let i = 0; i < props.cols; i++) {
         if (i < 26) {
             tHead.value.push({name: letterArr[i], width: 100});
@@ -655,19 +655,25 @@ const duplicateSelectCells = (e: Event) => {
 
         let lastValue: number, step: number;
         let isDate:boolean = false;
+        let isLetter:boolean = false;
         let dates:Date[] = [];
 
         if (endCol - startCol <= 1 && endRow - startRow <= 1) {
-            let numericalSeries: string[] = [];
+            let valuesSequence: string[] = [];
             selectedCellsValue.forEach(i => {
                 i.forEach(j => {
-                    numericalSeries.push(j);
+                    valuesSequence.push(j);
                 })
             })
-            lastValue = Number(numericalSeries[1])
-            step = lastValue - Number(numericalSeries[0]);
+            lastValue = Number(valuesSequence[1])
+            step = lastValue - Number(valuesSequence[0]);
 
-            for (const i of numericalSeries) {
+            isLetter = valuesSequence[0].toUpperCase() === 'A' && valuesSequence[1].toUpperCase() === 'B'
+            if (isLetter) {
+                step = 1;
+                lastValue = 1;
+            }
+            for (const i of valuesSequence) {
                 const [day,month,year] = i.split('.');
                 if (+day && +month && +year ){
                     isDate = true
@@ -705,6 +711,10 @@ const duplicateSelectCells = (e: Event) => {
                                 const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
                                 arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
                                 cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
+                            }
+                            if (isLetter){
+                                step++
+                                cell.content = step<26? letterArr[step]: letterArr[Math.floor(step / 26) - 1] + letterArr[step % 26];
                             }
                             lastValue += step;
                         } else {
