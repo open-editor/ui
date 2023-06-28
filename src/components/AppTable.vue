@@ -75,11 +75,16 @@
                  class="sheet-div px-2 py-1 bg-transparent cursor-pointer rounded-lg relative mr-3 group" @click="switchSheet(i)"
             >
                 {{sheet.name}}
-            <button v-if="curTable && curTable.sheets.length>1" @click="removeItem = i" type="button"  data-modal-target="deleteM" data-modal-toggle="deleteM" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</button>
+            <button v-if="curTable && curTable.sheets.length>1" @click="deleteFunction(i)" type="button" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</button>
             </div>
         </div>
     </div>
-<!--    <delete-modal modal-id="deleteM" v-if="curTable && curTable.sheets.length>1" @remove-sheet="removeSheet(removeItem)"/>-->
+    <DeleteModal
+      v-if="isModalVisible"
+      :name-for-delete="nameForDelete"
+      @removeSheet="removeSheet(removeItem)"
+      @cancel="hideDeleteModal"
+    />
 </template>
 
 <script setup lang="ts">
@@ -90,6 +95,7 @@ import {useRoute} from "vue-router";
 import DeleteModal from "@/components/Modal/DeleteModal.vue";
 import { initFlowbite } from "flowbite";
 import { format } from "timeago.js";
+
 const route = useRoute();
 
 const props = defineProps({
@@ -258,12 +264,27 @@ const switchSheet = (i:number) => {
 }
 
 const removeItem: Ref<number> = ref(0)
+
+
+const isModalVisible = ref(false);
+const idForDelete = ref();
+const nameForDelete = ref();
+function deleteFunction(i: number) {
+    removeItem.value = i;
+    isModalVisible.value = true;
+    idForDelete.value = i;
+    nameForDelete.value = curTable!.sheets[i].name
+}
 const removeSheet = (i:number) => {
     let temp = curSheet.value;
     curTable!.sheets.splice(i,1)
     temp !== i ? temp < i ? switchSheet(temp) : switchSheet(temp - 1) : switchSheet(0)
-
+    isModalVisible.value = false
 }
+function hideDeleteModal() {
+    isModalVisible.value = false;
+}
+
 const parseExpression = (cell: Cell) => {
     function parse(str: string) {
         try {

@@ -40,7 +40,7 @@
 
 <script lang="ts" setup>
 defineProps<{
-  idForDelete: string,
+  idForDelete?: string,
   nameForDelete: string,
 }>()
 
