@@ -281,12 +281,6 @@ const parseExpression = (cell: Cell) => {
         cell.content = parse(mathExpression);
     }
 }
-const changeContent = (col: Cell, event: Event) => {
-    col.content = (event.target as HTMLElement).textContent ?? ''
-    if (col.content !== "=") {
-        col.mathExp = col.content
-    }
-}
 const changeInput = (event: Event) => {
     const input = event.target as HTMLInputElement
     arrCells.value[rowActive.value][colActive.value].content = input!.value
@@ -709,7 +703,7 @@ const duplicateSelectCells = (e: Event) => {
                             if (isDate){
                                 const fullDate:Date = new Date(lastValue + step)
                                 const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
-                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i < 10 ? i.toString().padStart(2, '0') : i)
                                 cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                             if (isLetter){
@@ -722,7 +716,7 @@ const duplicateSelectCells = (e: Event) => {
                             if (isDate){
                                 const fullDate:Date = new Date(lastValue - step * (startCol - colIndex + 1))
                                 const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
-                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i < 10 ? i.toString().padStart(2, '0') : i)
                                 cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                         }
@@ -732,7 +726,7 @@ const duplicateSelectCells = (e: Event) => {
                             if (isDate){
                                 const fullDate:Date = new Date(lastValue + step)
                                 const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
-                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i < 10 ? i.toString().padStart(2, '0') : i)
                                 cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                             lastValue += step;
@@ -741,7 +735,7 @@ const duplicateSelectCells = (e: Event) => {
                             if (isDate){
                                 const fullDate:Date = new Date(lastValue - step * (startRow - rowIndex + 1))
                                 const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
-                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i < 10 ? i.toString().padStart(2, '0') : i)
                                 cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                         }
