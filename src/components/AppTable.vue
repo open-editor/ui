@@ -236,7 +236,7 @@ const inputCell = (rowI:number,colI:number,e:Event) => {
 let sheetsCounter = curTable!.sheets.length;
 const addSheet = async () => {
     sheetsCounter++;
-    curTable!.sheets.push({name:`Sheet${sheetsCounter}`,cellContent:[[`${sheetsCounter}`]]})
+    curTable!.sheets.push({name:`Sheet${sheetsCounter}`,cellContent:[[]]})
 
     await nextTick();
     initFlowbite()
@@ -654,6 +654,8 @@ const duplicateSelectCells = (e: Event) => {
         let isStartDuplicate = false;
 
         let lastValue: number, step: number;
+        let isDate:boolean = false;
+        let dates:Date[] = [];
 
         if (endCol - startCol <= 1 && endRow - startRow <= 1) {
             let numericalSeries: string[] = [];
@@ -664,6 +666,21 @@ const duplicateSelectCells = (e: Event) => {
             })
             lastValue = Number(numericalSeries[1])
             step = lastValue - Number(numericalSeries[0]);
+
+            numericalSeries.forEach(i => {
+                const [day,month,year] = i.split('.');
+                if (+day && +month && +year ){
+                    isDate = true
+                    dates.push(new Date(+year,+month-1,+day))
+                } else {
+                    isDate = false;
+                    return
+                }
+            })
+            if (isDate){
+                step = dates[1].getTime() - dates[0].getTime();
+                lastValue = +dates[1];
+            }
         }
         arrCells.value.forEach((row, rowIndex) => {
             r = isStartDuplicate ? r + 1 : 0;
@@ -683,16 +700,40 @@ const duplicateSelectCells = (e: Event) => {
                     if (lastValue && step && colIndex != endCol && colIndex != startCol && startRow === endRow) {
                         if (colIndex > endCol) {
                             cell.content = String(lastValue + step);
+                            if (isDate){
+                                let date: (number|string)[]|Date = new Date(lastValue + step)
+                                date = [date.getDate(),date.getMonth()+1,date.getFullYear()]
+                                date.forEach((i:number,index:number) => date[index] = i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                cell.content =date[0] + "." + date[1] + "." + date[2];
+                            }
                             lastValue += step;
                         } else {
                             cell.content = String(lastValue - step * (startCol - colIndex + 1));
+                            if (isDate){
+                                let date: (number|string)[]|Date = new Date(lastValue - step * (startCol - colIndex + 1))
+                                date = [date.getDate(),date.getMonth()+1,date.getFullYear()]
+                                date.forEach((i:number,index:number) => date[index] = i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                cell.content =date[0] + "." + date[1] + "." + date[2];
+                            }
                         }
                     } else if (lastValue && step && rowIndex != endRow && rowIndex != startRow && startCol === endCol) {
                         if (rowIndex > endRow) {
                             cell.content = String(lastValue + step);
+                            if (isDate){
+                                let date: (number|string)[]|Date = new Date(lastValue + step)
+                                date = [date.getDate(),date.getMonth()+1,date.getFullYear()]
+                                date.forEach((i:number,index:number) => date[index] = i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                cell.content =date[0] + "." + date[1] + "." + date[2];
+                            }
                             lastValue += step;
                         } else {
                             cell.content = String(lastValue - step * (startRow - rowIndex + 1));
+                            if (isDate){
+                                let date: (number|string)[]|Date = new Date(lastValue - step * (startRow - rowIndex + 1))
+                                date = [date.getDate(),date.getMonth()+1,date.getFullYear()]
+                                date.forEach((i:number,index:number) => date[index] = i / 10 < 1 ? i.toString().padStart(2, '0') : i)
+                                cell.content =date[0] + "." + date[1] + "." + date[2];
+                            }
                         }
                     }
                 }
