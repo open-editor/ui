@@ -75,16 +75,23 @@
                  class="sheet-div px-2 py-1 bg-transparent cursor-pointer rounded-lg relative mr-3 group" @click="switchSheet(i)"
             >
                 {{sheet.name}}
-            <button v-if="curTable && curTable.sheets.length>1" @click="deleteFunction(i)" type="button" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</button>
+            <button v-if="curTable && curTable.sheets.length>1" @click="deleteFunction($event,i)" type="button" class="crest absolute -top-1 -right-2 bg-white px-1 shadow-md z-[10] rounded-full text-xs opacity-0 group-hover:opacity-100 ease-in-out duration-100">✕</button>
             </div>
         </div>
     </div>
-    <DeleteModal
-      v-if="isModalVisible"
-      :name-for-delete="nameForDelete"
-      @removeSheet="removeSheet(removeItem)"
-      @cancel="hideDeleteModal"
-    />
+    <transition
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+      enter-active-class="transition duration-200"
+      leave-active-class="transition duration-200"
+    >
+        <DeleteModal
+          v-if="isModalVisible"
+          :name-for-delete="nameForDelete"
+          @removeSheet="removeSheet(removeItem)"
+          @cancel="hideDeleteModal"
+        />
+    </transition>
 </template>
 
 <script setup lang="ts">
@@ -269,7 +276,8 @@ const removeItem: Ref<number> = ref(0)
 const isModalVisible = ref(false);
 const idForDelete = ref();
 const nameForDelete = ref();
-function deleteFunction(i: number) {
+function deleteFunction(e:Event,i: number) {
+    e.stopPropagation();
     removeItem.value = i;
     isModalVisible.value = true;
     idForDelete.value = i;

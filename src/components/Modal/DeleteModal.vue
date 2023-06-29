@@ -1,7 +1,7 @@
 <template>
-  <div tabindex="-1"
+  <div tabindex="-1" @click="cancel"
        class="w-screen h-screen bg-opacity-80 bg-black overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center md:inset-0 h-[calc(100%-1rem)]">
-    <div class="mx-auto relative p-4 mt-20 w-96">
+    <div class="mx-auto relative p-4 mt-20 w-96" @click="$event.stopPropagation()">
       <!-- Modal content -->
       <div class="relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
         <button type="button"
