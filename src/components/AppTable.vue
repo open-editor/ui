@@ -7,9 +7,9 @@
             <input
                     type="text"
                     class="rounded-e-lg border border-gray-300 px-2.5 py-1.5 text-base focus:shadow-none h-full w-full"
-                    :value="arrCells[rowActive][colActive].mathExp ? arrCells[rowActive][colActive].mathExp : arrCells[rowActive][colActive].content"
+                    :value="cellContent(rowActive,colActive)"
                     @input="changeInput"
-                    @keyup.enter="onNextCell(arrCells[rowActive][colActive])"
+                    @keyup.enter="onNextCell(arrCells[rowActive][colActive],$event)"
             />
         </div>
     </div>
@@ -41,13 +41,14 @@
                         @mousedown="activeCell(col, $event)"
                         @mouseover="isStartOver && onMouseOver(rowInd,colInd)"
                         @mouseup="onMouseUp"
-                        @keypress.enter.prevent="onNextCell(col)"
-                        @keyup.down.prevent="onNextCell(col)"
-                        @keyup.up.prevent="onUpCell(col)"
-                        @keyup.left.prevent="onLeftCell(col)"
-                        @keyup.right.prevent="onRightCell(col)"
+                        @keypress.enter.prevent="onNextCell(col, $event)"
+                        @keyup.down.prevent="!isFormula && onNextCell(col, $event)"
+                        @keyup.up.prevent="!isFormula && onUpCell(col)"
+                        @keyup.left.prevent="!isFormula && onLeftCell(col)"
+                        @keyup.right.prevent="!isFormula && onRightCell(col)"
                         class="border border-gray-300 text-center h-[30px] outline-0 relative p-0"
-                        :class="{'outline outline-2 outline-[#007e00a5]': col.selected, 'bg-black/10' : isSelected(rowInd,colInd),'outline outline-2 outline-[#008200] bg-inherit': col.active }"
+                        :class="{'outline outline-2 outline-[#007e00a5]': col.selected, 'bg-black/10' : isSelected(rowInd,colInd),
+                            'outline outline-2 outline-[#008200] bg-inherit': col.active, 'bg-blue-100':col.inFormula}"
                 >
                     <div
                             class="cell-content outline-none w-full h-full"
@@ -95,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref } from "vue";
+import { computed, nextTick, reactive, ref, watch } from "vue";
 import type { Ref } from "vue";
 import tableData from '@/data'
 import {useRoute} from "vue-router";
@@ -112,14 +113,18 @@ const props = defineProps({
 
 interface Cell {
     content: string,
+    name: string,
     active: boolean,
     selected: boolean,
+    highlighted: boolean,
     editable: boolean,
     selectCell: boolean,
     width: number,
     row: number,
     col: number,
     mathExp: string,
+    inFormula?: boolean,
+    inFormulaValues: Cell[]
 }
 
 interface Selection {
@@ -166,14 +171,18 @@ const onCreated = () => {
         for (let j = 0; j < props.cols; j++) {
             arrCells.value[i].push({
                 content: "",
+                name: "",
                 active: false,
                 selected: false,
+                highlighted: false,
                 editable: false,
                 selectCell: false,
                 width: 100,
                 row: i,
                 col: j,
-                mathExp: ""
+                mathExp: "",
+                inFormula: false,
+                inFormulaValues:[]
             });
             arrCells.value[i][j].content = currentTable?.sheets?.[0].cellContent?.[i]?.[j] ?? ""
             arrCellsBody[i][j] = arrCells.value[i][j].content
@@ -192,6 +201,11 @@ const onCreated = () => {
 }
 onCreated()
 
+const cellContent = (rowActive: number, colActive: number) => {
+    let cellContent = arrCells.value[rowActive][colActive];
+    return cellContent.mathExp ? cellContent.mathExp : cellContent.content;
+};
+
 const letterArr: string[] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 const tableHeaderTitle = () => {
     for (let i = 0; i < props.cols; i++) {
@@ -206,18 +220,38 @@ const tableHeaderTitle = () => {
 }
 tableHeaderTitle();
 
+const addCellName = () => {
+    for (const row of arrCells.value) {
+        for (const cell of row) {
+            cell.name = tHead.value[cell.col].name + (cell.row + 1);
+        }
+    }
+};
+addCellName();
+
 const duplicateSelection = computed(() => {
     return !(selection.startRow === selection.endRow && selection.startCol === selection.endCol);
     // return rowActive.value !=== selection.endRow || colActive.value !=== selection.endCol
 });
-
+let isFormula = ref(false)
+let formulaCellValues: Cell[] = []
 const activeCell = (cell: Cell, e: Event) => {
+    if (isFormula.value){
+        if (cell.col !== colActive.value || cell.row !== rowActive.value) {
+            cell.inFormula = true;
+            formulaCellValues.push(cell)
+            arrCells.value[rowActive.value][colActive.value].inFormulaValues.push(cell)
+            arrCells.value[rowActive.value][colActive.value].content += "[" + cell.name + "];";
+        }
+        return formulaCellValues;
+    }
     let cellActive;
     for (let i = 0; i < arrCells.value.length; i++) {
         cellActive = arrCells.value[i].find((el) => el.active === true);
         if (cellActive) {
             cellActive.active = false;
             cellActive.editable = false;
+            cellActive.highlighted = false;
             break;
         }
     }
@@ -238,14 +272,50 @@ const activeCell = (cell: Cell, e: Event) => {
     };
     focusOnCell()
     parseExpression(cell)
-
 }
+watch(() => arrCells.value.map(row => row.map(cell => cell.inFormulaValues.map(obj => obj.content))),
+  (newValues, oldValues) => {
+      for (let row = 0; row < newValues.length; row++) {
+          for (let col = 0; col < newValues[row].length; col++) {
+              for (let i = 0; i < newValues[row][col].length; i++) {
+                  if (newValues[row][col][i] !== oldValues[row][col][i]) {
+
+                      calculate(row, col);
+                  }
+              }
+          }
+      }
+  }, { deep: true });
+const calculate = (rowActive: number, colActive: number) => {
+    let cellContent = arrCells.value[rowActive][colActive];
+    console.log(cellContent);
+    if (!cellContent.active) {
+        cellContent.content = String(sum(...cellContent.inFormulaValues));
+    }
+};
 const inputCell = (rowI:number,colI:number,e:Event) => {
 
     arrCells.value[rowI][colI].content = (e.target as HTMLElement).textContent ?? '';
     curTable!.sheets[curSheet.value].cellContent[rowI][colI] = arrCells.value[rowI][colI].content;
+    if ((e.target as HTMLElement).textContent?.trim().toUpperCase() === '=SUM(') {
+        isFormula.value = true
+    }
+    if (isFormula.value && (e.target as HTMLElement).textContent?.includes(')')){
+        isFormula.value = false;
+        arrCells.value[rowI][colI].mathExp = arrCells.value[rowI][colI].content.toUpperCase();
+        arrCells.value[rowI][colI].content = String(sum(...formulaCellValues))
+        formulaCellValues = [];
+    }
 }
 
+const sum = (...cells: Cell[]) => {
+    let sum = 0;
+    for (const cell of cells) {
+        cell.inFormula = false
+        sum += +cell.content
+    }
+    return sum;
+}
 let sheetsCounter = curTable!.sheets.length;
 const addSheet = async () => {
     sheetsCounter++;
@@ -303,11 +373,15 @@ const parseExpression = (cell: Cell) => {
     }
 
     let mathExpression = cell.content;
+    if (mathExpression.toString().split(' ').join('').slice(-4).toUpperCase() === '=SUM'){
+        let nums = [];
 
+    }
     if (mathExpression[0] === "=") {
         cell.mathExp = mathExpression;
         mathExpression = mathExpression.slice(1);
         cell.content = parse(mathExpression);
+            console.log("1");
     }
 }
 const changeInput = (event: Event) => {
@@ -319,7 +393,10 @@ const changeInput = (event: Event) => {
         arrCells.value[rowActive.value][colActive.value].mathExp = ""
     }
 }
-const onNextCell = (cell: Cell) => {
+const onNextCell = (cell: Cell,e:KeyboardEvent) => {
+    if (e.key ===  'Enter'){
+        isFormula.value = false;
+    }
     if (rowActive.value + 1 < props.rows) {
         cell.active = false;
         cell.editable = false;
@@ -333,7 +410,11 @@ const onNextCell = (cell: Cell) => {
         focusOnCell()
         defaultSelectValue();
     }
-    parseExpression(cell);
+    if(cell.mathExp.toUpperCase().includes('=SUM(')){
+        inputCell(cell.row,cell.col,e)
+    }else {
+        parseExpression(cell);
+    }
 }
 const onKeypress = (cell: Cell) => {
     cell.active = false;
@@ -566,7 +647,7 @@ const duplicateSelectCells = (e: Event) => {
     let startSelectedX = mouseE.pageX;
     let startSelectedY = mouseE.pageY;
     const mouseMove = (event: Event) => {
-        isStartOver.value = false
+        isStartOver.value = false;
 
         let mouseEvent = event as MouseEvent;
         let selectedCellsX = mouseEvent.pageX - startSelectedX;
@@ -626,7 +707,7 @@ const duplicateSelectCells = (e: Event) => {
                 for (let row = startRow; row <= endRow; row++) {
                     arrCells.value[row].find((cell) => {
                         cell.selected = false;
-                    })
+                    });
                 }
                 if (bottomRightCell[0] + i < props.rows && bottomRightCell[0] + i > 0) {
                     // If move to the up
@@ -665,9 +746,9 @@ const duplicateSelectCells = (e: Event) => {
 
                 }
             }
-        }
+        };
         checkSelectedCells();
-    }
+    };
     document.addEventListener("mousemove", mouseMove);
     document.onmouseup = () => {
         document.removeEventListener("mousemove", mouseMove);
@@ -677,36 +758,39 @@ const duplicateSelectCells = (e: Event) => {
         let isStartDuplicate = false;
 
         let lastValue: number, step: number;
-        let isDate:boolean = false;
-        let isLetter:boolean = false;
-        let dates:Date[] = [];
+        let isDate: boolean = false;
+        let isLetter: boolean = false;
+        let dates: Date[] = [];
+        const re: RegExp = new RegExp("(\\d{2}).(\\d{2}).(\\d{4})");
 
         if (endCol - startCol <= 1 && endRow - startRow <= 1) {
             let valuesSequence: string[] = [];
             selectedCellsValue.forEach(i => {
                 i.forEach(j => {
                     valuesSequence.push(j);
-                })
-            })
-            lastValue = Number(valuesSequence[1])
+                });
+            });
+            lastValue = Number(valuesSequence[1]);
             step = lastValue - Number(valuesSequence[0]);
 
-            isLetter = valuesSequence[0].toUpperCase() === 'A' && valuesSequence[1].toUpperCase() === 'B'
+            isLetter = valuesSequence[0].toString().toUpperCase() === "A" && valuesSequence[1].toUpperCase() === "B";
             if (isLetter) {
                 step = 1;
                 lastValue = 1;
             }
-            for (const i of valuesSequence) {
-                const [day,month,year] = i.split('.');
-                if (+day && +month && +year ){
-                    isDate = true
-                    dates.push(new Date(+year,+month-1,+day))
-                } else {
-                    isDate = false;
-                    break
+            if (re.test(valuesSequence[0]) && re.test(valuesSequence[1])) {
+                for (const i of valuesSequence) {
+                    const [day, month, year] = i.split(".");
+                    if (+day && +month && +year) {
+                        isDate = true;
+                        dates.push(new Date(+year, +month - 1, +day));
+                    } else {
+                        isDate = false;
+                        break;
+                    }
                 }
             }
-            if (isDate){
+            if (isDate) {
                 step = dates[1].getTime() - dates[0].getTime();
                 lastValue = +dates[1];
             }
@@ -717,10 +801,10 @@ const duplicateSelectCells = (e: Event) => {
             row.forEach((cell, colIndex) => {
                 if (cell.selected) {
                     if (endCol - startCol + 1 <= col) {
-                        col = 0
+                        col = 0;
                     }
                     if (endRow - startRow + 1 <= r) {
-                        r = 0
+                        r = 0;
                     }
                     cell.content = selectedCellsValue[r][col];
                     col++;
@@ -729,43 +813,43 @@ const duplicateSelectCells = (e: Event) => {
                     if (lastValue && step && colIndex != endCol && colIndex != startCol && startRow === endRow) {
                         if (colIndex > endCol) {
                             cell.content = String(lastValue + step);
-                            if (isDate){
-                                const fullDate:Date = new Date(lastValue + step)
-                                const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
-                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i < 10 ? i.toString().padStart(2, '0') : i)
-                                cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
+                            if (isDate) {
+                                const fullDate: Date = new Date(lastValue + step);
+                                const arrDate: (number | string)[] = [fullDate.getDate(), fullDate.getMonth() + 1, fullDate.getFullYear()];
+                                arrDate.forEach((i: number | string, index: number) => arrDate[index] = typeof i === "number" && i < 10 ? i.toString().padStart(2, "0") : i);
+                                cell.content = arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
-                            if (isLetter){
-                                step++
-                                cell.content = step<26? letterArr[step]: letterArr[Math.floor(step / 26) - 1] + letterArr[step % 26];
+                            if (isLetter) {
+                                step++;
+                                cell.content = step < 26 ? letterArr[step] : letterArr[Math.floor(step / 26) - 1] + letterArr[step % 26];
                             }
                             lastValue += step;
                         } else {
                             cell.content = String(lastValue - step * (startCol - colIndex + 1));
-                            if (isDate){
-                                const fullDate:Date = new Date(lastValue - step * (startCol - colIndex + 1))
-                                const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
-                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i < 10 ? i.toString().padStart(2, '0') : i)
-                                cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
+                            if (isDate) {
+                                const fullDate: Date = new Date(lastValue - step * (startCol - colIndex + 1));
+                                const arrDate: (number | string)[] = [fullDate.getDate(), fullDate.getMonth() + 1, fullDate.getFullYear()];
+                                arrDate.forEach((i: number | string, index: number) => arrDate[index] = typeof i === "number" && i < 10 ? i.toString().padStart(2, "0") : i);
+                                cell.content = arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                         }
                     } else if (lastValue && step && rowIndex != endRow && rowIndex != startRow && startCol === endCol) {
                         if (rowIndex > endRow) {
                             cell.content = String(lastValue + step);
-                            if (isDate){
-                                const fullDate:Date = new Date(lastValue + step)
-                                const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
-                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i < 10 ? i.toString().padStart(2, '0') : i)
-                                cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
+                            if (isDate) {
+                                const fullDate: Date = new Date(lastValue + step);
+                                const arrDate: (number | string)[] = [fullDate.getDate(), fullDate.getMonth() + 1, fullDate.getFullYear()];
+                                arrDate.forEach((i: number | string, index: number) => arrDate[index] = typeof i === "number" && i < 10 ? i.toString().padStart(2, "0") : i);
+                                cell.content = arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                             lastValue += step;
                         } else {
                             cell.content = String(lastValue - step * (startRow - rowIndex + 1));
-                            if (isDate){
-                                const fullDate:Date = new Date(lastValue - step * (startRow - rowIndex + 1))
-                                const arrDate:(number|string)[] = [fullDate.getDate(),fullDate.getMonth()+1,fullDate.getFullYear()]
-                                arrDate.forEach((i:number|string,index:number) => arrDate[index] = typeof i === 'number' && i < 10 ? i.toString().padStart(2, '0') : i)
-                                cell.content =arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
+                            if (isDate) {
+                                const fullDate: Date = new Date(lastValue - step * (startRow - rowIndex + 1));
+                                const arrDate: (number | string)[] = [fullDate.getDate(), fullDate.getMonth() + 1, fullDate.getFullYear()];
+                                arrDate.forEach((i: number | string, index: number) => arrDate[index] = typeof i === "number" && i < 10 ? i.toString().padStart(2, "0") : i);
+                                cell.content = arrDate[0] + "." + arrDate[1] + "." + arrDate[2];
                             }
                         }
                     }
@@ -775,6 +859,6 @@ const duplicateSelectCells = (e: Event) => {
         });
 
     };
-}
+};
 
 </script>
