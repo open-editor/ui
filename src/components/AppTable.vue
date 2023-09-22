@@ -7,7 +7,7 @@
             <input
                     type="text"
                     class="rounded-e-lg border border-gray-300 px-2.5 py-1.5 text-base focus:shadow-none h-full w-full"
-                    :value="cellContent(rowActive,colActive)"
+                    :value="cellContentComputed"
                     @input="changeInput"
                     @keyup.enter="onNextCell(arrCells[rowActive][colActive],$event)"
             />
@@ -36,7 +36,7 @@
                     <span class="row-resize w-full h-1 absolute left-0 -bottom-1 z-[2] cursor-row-resize" @mousedown="rowResize(rowInd, $event)"></span>
                 </td>
                 <td
-                        v-for="(col, colInd) in arrCells[rowInd]"
+                        v-for="(col, colInd) in row"
                         :key="colInd"
                         @mousedown="activeCell(col, $event)"
                         @mouseover="isStartOver && onMouseOver(rowInd,colInd)"
@@ -47,12 +47,12 @@
                         @keyup.left.prevent="!isFormula && onLeftCell(col)"
                         @keyup.right.prevent="!isFormula && onRightCell(col)"
                         class="border border-gray-300 text-center h-[30px] outline-0 relative p-0"
-                        :class="{'outline outline-2 outline-[#007e00a5]': col.selected, 'bg-black/10' : isSelected(rowInd,colInd),
-                            'outline outline-2 outline-[#008200] bg-inherit': col.active, 'bg-blue-100':col.inFormula}"
+                        :class="{'outline outline-2 outline-[#007e00a5]': col.selected, 'bg-black/10' : !isFormula && isSelected(rowInd,colInd),
+                            'outline outline-2 outline-[#008200] bg-inherit': col.active, 'bg-blue-100':(isFormula && isSelected(rowInd,colInd,true)) || col.inFormula}"
                 >
                     <div
                             class="cell-content outline-none w-full h-full"
-                            :contenteditable="col.editable && !col.mathExp"
+                            :contenteditable="col.editable"
                             @input="inputCell(rowInd,colInd,$event)"
                     >
                         {{ col.content }}
@@ -63,7 +63,7 @@
                             v-if="rowActive === rowInd && colActive === colInd && !duplicateSelection"
                     ></span>
                     <span class="duplicate-selection absolute z-[2] -right-1.5 -bottom-1.5 w-2 h-2 border border-white cursor-crosshair bg-black"
-                          v-if="duplicateSelection && rowInd === bottomRightCell[0] && colInd === bottomRightCell[1]"
+                          v-if="!isFormula && !isStartOver && duplicateSelection && rowInd === bottomRightCell[0] && colInd === bottomRightCell[1]"
                           @mousedown="duplicateSelectCells"
                           @mouseup="duplicateSelectMove = false"
                     ></span>
@@ -134,8 +134,9 @@ interface Selection {
     endCol: number | null,
 }
 
+const arrCellsTemp = ref<Cell[][]>([]);
+
 const arrCells = ref<Cell[][]>([]),
-    tHead = ref<{ name: string, width: number }[]>([]),
     rowsHeight = ref<number[]>([]),
     colActive = ref<number>(0),
     rowActive = ref<number>(0);
@@ -153,6 +154,8 @@ const selection = reactive<Selection>({
 });
 
 let startRow: number, startCol: number, endRow: number, endCol: number;
+
+const formulas: string[] = ['=SUM(','=COUNT(','=MIN(','=MAX(']
 const defaultSelectValue = () => {
     selection.startRow = null;
     selection.startCol = null;
@@ -161,51 +164,8 @@ const defaultSelectValue = () => {
 }
 const curTable = tableData.value.find(table => table.id === +route.params.id);
 let curSheet = ref(0);
-const onCreated = () => {
-    const currentTable = tableData.value.find(table => table.id === +route.params.id);
-    let arrCellsBody:string[][] = []
-    for (let i = 0; i < props.rows; i++) {
-        arrCells.value.push([]);
-        arrCellsBody.push([]);
-        rowsHeight.value.push(30);
-        for (let j = 0; j < props.cols; j++) {
-            arrCells.value[i].push({
-                content: "",
-                name: "",
-                active: false,
-                selected: false,
-                highlighted: false,
-                editable: false,
-                selectCell: false,
-                width: 100,
-                row: i,
-                col: j,
-                mathExp: "",
-                inFormula: false,
-                inFormulaValues:[]
-            });
-            arrCells.value[i][j].content = currentTable?.sheets?.[0].cellContent?.[i]?.[j] ?? ""
-            arrCellsBody[i][j] = arrCells.value[i][j].content
-        }
-    }
-    currentTable!.sheets[curSheet.value].cellContent = arrCellsBody
-    arrCells.value[0][0].active = true;
-    arrCells.value[0][0].editable = true;
-    const focusOnCell = async () => {
-        await nextTick();
-        (refRows.value[0] as any).children[1].firstChild.focus();
-    };
-    focusOnCell();
 
-    currentTable!.lastOpened = format(new Date())
-}
-onCreated()
-
-const cellContent = (rowActive: number, colActive: number) => {
-    let cellContent = arrCells.value[rowActive][colActive];
-    return cellContent.mathExp ? cellContent.mathExp : cellContent.content;
-};
-
+const tHead = ref<{ name: string, width: number }[]>([]);
 const letterArr: string[] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 const tableHeaderTitle = () => {
     for (let i = 0; i < props.cols; i++) {
@@ -220,30 +180,116 @@ const tableHeaderTitle = () => {
 }
 tableHeaderTitle();
 
-const addCellName = () => {
-    for (const row of arrCells.value) {
+const initTable = () => {
+    arrCellsTemp.value = []
+    for (let i = 0; i < props.rows; i++) {
+        arrCellsTemp.value.push([]);
+        for (let j = 0; j < props.cols; j++) {
+            arrCellsTemp.value[i].push({
+                content: "",
+                name: "",
+                active: false,
+                selected: false,
+                highlighted: false,
+                editable: false,
+                selectCell: false,
+                width: 100,
+                row: i,
+                col: j,
+                mathExp: "",
+                inFormula: false,
+                inFormulaValues:[]
+            });
+        }
+    }
+    addCellName(arrCellsTemp.value);
+
+    return arrCellsTemp.value
+}
+const onCreated = () => {
+    const currentTable = tableData.value.find(table => table.id === +route.params.id);
+    // let arrCellsBody:string[][] = []
+
+    arrCells.value = initTable();
+
+    for (let i = 0; i < props.rows; i++) {
+        // arrCellsBody.push([]);
+        rowsHeight.value.push(30);
+        for (let j = 0; j < props.cols; j++) {
+            arrCells.value[i][j].content = currentTable?.sheets?.[curSheet.value].cellsContent?.[i]?.[j] ?? ""
+            // arrCellsBody[i][j] = arrCells.value[i][j].content
+        }
+    }
+    // currentTable!.sheets[curSheet.value].cellsContent = arrCellsBody
+    currentTable!.sheets[curSheet.value].cell = arrCells.value
+
+    arrCells.value[0][0].active = true;
+    arrCells.value[0][0].editable = true;
+    const focusOnCell = async () => {
+        await nextTick();
+        (refRows.value[0] as any).children[1].firstChild.focus();
+    };
+    focusOnCell();
+
+    currentTable!.lastOpened = format(new Date())
+
+    return arrCells.value;
+}
+onCreated()
+
+// const cellContent = (rowActive: number, colActive: number) => {
+//     let cellContent = arrCells.value[rowActive][colActive];
+//     return cellContent.mathExp ? cellContent.mathExp : cellContent.content;
+// };
+const cellContentComputed = computed(()=>{
+    let cellCont = arrCells.value[rowActive.value][colActive.value];
+    // console.log(cellCont.content.toUpperCase());
+    if(formulas.some(value => cellCont.content.toUpperCase().includes(value))){
+        return cellCont.content
+    }
+    return cellCont.mathExp ? cellCont.mathExp : cellCont.content;
+})
+
+function addCellName(arrCells: Cell[][]){
+    for (const row of arrCells) {
         for (const cell of row) {
             cell.name = tHead.value[cell.col].name + (cell.row + 1);
         }
     }
-};
-addCellName();
+}
+// addCellName(arrCells.value);
 
 const duplicateSelection = computed(() => {
     return !(selection.startRow === selection.endRow && selection.startCol === selection.endCol);
     // return rowActive.value !=== selection.endRow || colActive.value !=== selection.endCol
 });
 let isFormula = ref(false)
-let formulaCellValues: Cell[] = []
+// let formulaCellValues = ref<Cell[]>([])
 const activeCell = (cell: Cell, e: Event) => {
+    let cellContent = arrCells.value[rowActive.value][colActive.value];
     if (isFormula.value){
         if (cell.col !== colActive.value || cell.row !== rowActive.value) {
-            cell.inFormula = true;
-            formulaCellValues.push(cell)
-            arrCells.value[rowActive.value][colActive.value].inFormulaValues.push(cell)
-            arrCells.value[rowActive.value][colActive.value].content += "[" + cell.name + "];";
+            if (cell.inFormula){
+                const elementToRemove = (item:Cell) => item.name !== cell.name
+                cellContent.inFormulaValues = cellContent.inFormulaValues.filter(item => elementToRemove(item))
+                cell.inFormula = false;
+                console.log(cell);
+            } else {
+                cell.inFormula = true;
+                console.log(2);
+                // formulaCellValues.value.push(cell)
+                cellContent.inFormulaValues.push(cell)
+                // cellContent.content += "[" + cell.name + "];";
+            }
+            cellContent.content = "=SUM(" + cellContent.inFormulaValues.map(cellName => cellName.name).join(';');
         }
-        return formulaCellValues;
+        isStartOver.value = true;
+        selection.startRow = cell.row;
+        selection.startCol = cell.col;
+        selection.endRow = cell.row;
+        selection.endCol = cell.col;
+
+        return;
     }
     let cellActive;
     for (let i = 0; i < arrCells.value.length; i++) {
@@ -273,38 +319,58 @@ const activeCell = (cell: Cell, e: Event) => {
     focusOnCell()
     parseExpression(cell)
 }
-watch(() => arrCells.value.map(row => row.map(cell => cell.inFormulaValues.map(obj => obj.content))),
-  (newValues, oldValues) => {
-      for (let row = 0; row < newValues.length; row++) {
-          for (let col = 0; col < newValues[row].length; col++) {
-              for (let i = 0; i < newValues[row][col].length; i++) {
-                  if (newValues[row][col][i] !== oldValues[row][col][i]) {
-
-                      calculate(row, col);
-                  }
-              }
-          }
-      }
-  }, { deep: true });
+// watch(() => arrCells.value.map(row => row.map(cell => cell.inFormulaValues.map(obj => obj.content))),
+//   (newValues, oldValues) => {
+//       for (let row = 0; row < newValues.length; row++) {
+//           for (let col = 0; col < newValues[row].length; col++) {
+//               for (let i = 0; i < newValues[row][col].length; i++) {
+//                   if (newValues[row][col][i] !== oldValues[row][col][i]) {
+//                       calculate(row, col);
+//                   }
+//               }
+//           }
+//       }
+//   }, { deep: true });
 const calculate = (rowActive: number, colActive: number) => {
     let cellContent = arrCells.value[rowActive][colActive];
-    console.log(cellContent);
+    // console.log(cellContent);
     if (!cellContent.active) {
         cellContent.content = String(sum(...cellContent.inFormulaValues));
     }
 };
-const inputCell = (rowI:number,colI:number,e:Event) => {
 
-    arrCells.value[rowI][colI].content = (e.target as HTMLElement).textContent ?? '';
-    curTable!.sheets[curSheet.value].cellContent[rowI][colI] = arrCells.value[rowI][colI].content;
-    if ((e.target as HTMLElement).textContent?.trim().toUpperCase() === '=SUM(') {
-        isFormula.value = true
+const checkValues = (cell: Cell) => {
+    for (const row of arrCells.value) {
+        for (const col of row) {
+            if (col.inFormulaValues.find(item => item.name === cell.name)){
+                col.content = String(sum(...col.inFormulaValues));
+            }
+        }
+    }
+}
+const inputCell = (rowI:number,colI:number,e:Event) => {
+    let cellContent = arrCells.value[rowI][colI];
+    cellContent.content = (e.target as HTMLElement).textContent ?? '';
+
+    // isFormula.value = cellContent.content.trim().toUpperCase().includes('=SUM(');
+    isFormula.value = formulas.some(value => cellContent.content.trim().toUpperCase().includes(value));
+
+    if(cellContent.mathExp){
+        cellContent.mathExp = cellContent.content
+        if (cellContent.inFormulaValues){
+            cellContent.inFormulaValues = []
+        }
     }
     if (isFormula.value && (e.target as HTMLElement).textContent?.includes(')')){
-        isFormula.value = false;
-        arrCells.value[rowI][colI].mathExp = arrCells.value[rowI][colI].content.toUpperCase();
-        arrCells.value[rowI][colI].content = String(sum(...formulaCellValues))
-        formulaCellValues = [];
+        e.target?.addEventListener('keydown', function(event) {
+            if ((event as KeyboardEvent).key === "Enter"){
+                isFormula.value = false;
+                cellContent.mathExp = cellContent.content.toUpperCase();
+                cellContent.content = String(sum(...cellContent.inFormulaValues))
+
+            }
+        })
+
     }
 }
 
@@ -319,25 +385,24 @@ const sum = (...cells: Cell[]) => {
 let sheetsCounter = curTable!.sheets.length;
 const addSheet = async () => {
     sheetsCounter++;
-    curTable!.sheets.push({name:`Sheet${sheetsCounter}`,cellContent:[[]]})
+    curTable!.sheets.push({name:`Sheet${sheetsCounter}`, cell: initTable()})
 
     await nextTick();
     initFlowbite()
 }
-const switchSheet = (i:number) => {
+const switchSheet = async (i:number) => {
     curSheet.value = i;
-    let arrCellsBody:string[][] = []
-    for (let r = 0; r < props.rows; r++) {
-        arrCellsBody.push([]);
-        for (let c = 0; c < props.cols; c++) {
-            arrCells.value[r][c].content = curTable!.sheets[i]?.cellContent?.[r]?.[c] ?? ""
-            if (curTable!.sheets[i]?.cellContent?.[r]?.[c]?.[0] === "="){
-                parseExpression(arrCells.value[r][c])
+
+    for (const row of arrCells.value) {
+        for (const cell of row) {
+            if (cell.active) {
+                cell.active = false;
+                break
             }
-            arrCellsBody[r][c] = arrCells.value[r][c].content
         }
     }
-    curTable!.sheets[curSheet.value].cellContent = arrCellsBody
+    arrCells.value = curTable!.sheets[i]?.cell as Cell[][]
+    arrCells.value[rowActive.value][colActive.value].active = true
 }
 
 const removeItem: Ref<number> = ref(0)
@@ -373,24 +438,25 @@ const parseExpression = (cell: Cell) => {
     }
 
     let mathExpression = cell.content;
-    if (mathExpression.toString().split(' ').join('').slice(-4).toUpperCase() === '=SUM'){
-        let nums = [];
-
-    }
     if (mathExpression[0] === "=") {
         cell.mathExp = mathExpression;
         mathExpression = mathExpression.slice(1);
-        cell.content = parse(mathExpression);
-            console.log("1");
+        cell.content = String(parse(mathExpression));
+            console.log("2");
     }
 }
 const changeInput = (event: Event) => {
     const input = event.target as HTMLInputElement
     arrCells.value[rowActive.value][colActive.value].content = input!.value
+
+    // isFormula.value = input.value.toUpperCase().includes('=SUM(');
+    isFormula.value = formulas.some(value => input.value.toUpperCase().includes(value));
+
     if (input.value[0] === "=") {
-        arrCells.value[rowActive.value][colActive.value].mathExp = input!.value
+        arrCells.value[rowActive.value][colActive.value].mathExp = input!.value;
+        console.log(arrCells.value[rowActive.value][colActive.value].mathExp);
     } else {
-        arrCells.value[rowActive.value][colActive.value].mathExp = ""
+        arrCells.value[rowActive.value][colActive.value].mathExp = "";
     }
 }
 const onNextCell = (cell: Cell,e:KeyboardEvent) => {
@@ -410,11 +476,25 @@ const onNextCell = (cell: Cell,e:KeyboardEvent) => {
         focusOnCell()
         defaultSelectValue();
     }
-    if(cell.mathExp.toUpperCase().includes('=SUM(')){
-        inputCell(cell.row,cell.col,e)
+    if(cell.content.toUpperCase().includes('=SUM(')){
+        // inputCell(cell.row,cell.col,e)
+        cell.inFormulaValues = []
+        let cellsInFormula = cell.content.split('[').slice(1).map(i => i.toUpperCase().replace(']','').replace(';','').replace(')',''));
+        for (const row of arrCells.value) {
+            for (const col of row) {
+                 if(cellsInFormula.find(name => col.name === name)){
+                     cell.inFormulaValues.push(col)
+                 }
+            }
+        }
+        isFormula.value = false;
+        cell.mathExp = cell.content.toUpperCase();
+        cell.content = String(sum(...cell.inFormulaValues))
     }else {
         parseExpression(cell);
     }
+
+    checkValues(cell)
 }
 const onKeypress = (cell: Cell) => {
     cell.active = false;
@@ -428,6 +508,8 @@ const onKeypress = (cell: Cell) => {
     focusOnCell();
     defaultSelectValue();
     parseExpression(cell);
+
+    checkValues(cell)
 }
 const onUpCell = (cell: Cell) => {
     if (rowActive.value > 0) {
@@ -606,21 +688,57 @@ const onMouseOver = (rowInd: number, colInd: number) => {
     if (selection.endRow < selection.startRow) {
         bottomRightCell[0] = selection.startRow
     }
+    // if (isFormula.value){
+    //     startRow = Math.min(selection.startRow, selection.endRow);
+    //     endRow = Math.max(selection.startRow, selection.endRow);
+    //     startCol = Math.min(selection.startCol, selection.endCol);
+    //     endCol = Math.max(selection.startCol, selection.endCol);
+    //
+    //     for (let i = startRow; i <= endRow; i++){
+    //         for (let j = startCol; j <= endCol; j++){
+    //             arrCells.value[i][j].inFormula = true
+    //         }
+    //     }
+    // }
 }
-let selectedCellsValue: string[][] = [];
+let selectedCellsValue: Cell[][] = [];
 const onMouseUp = () => {
+    let cellContent = arrCells.value[rowActive.value][colActive.value];
     isStartOver.value = false;
+
     selectedCellsValue = [];
     let iteration = 0;
     for (let row = startRow; row <= endRow; row++) {
         selectedCellsValue[iteration] = [];
         for (let col = startCol; col <= endCol; col++) {
-            selectedCellsValue[iteration].push(arrCells.value[row][col].content)
+            selectedCellsValue[iteration].push(arrCells.value[row][col])
         }
         iteration++;
     }
+
+    // startRow = -1;
+    // endRow = -1;
+    // startCol = -1;
+    // endCol = -1;
+
+    if (isFormula.value && (selection.startRow !== selection.endRow || selection.startCol !== selection.endCol)) {
+        for (const row of selectedCellsValue) {
+            for (const cell of row) {
+                cell.inFormula = !(selection.startRow === selection.endRow && selection.startRow === cell.row &&
+                  selection.startCol === selection.endCol && selection.startCol === cell.col);
+                if (cell.inFormula) {
+                    // cellContent.inFormulaValues[cellContent.inFormulaValues.length-1].name === cell.name
+                    !cellContent.inFormulaValues.includes(cell) && cellContent.inFormulaValues.push(cell)
+                }
+            }
+        }
+        cellContent.content += `:${cellContent.inFormulaValues[cellContent.inFormulaValues.length-1].name}`
+    }
 }
-const isSelected = (rowInd: number, colInd: number) => {
+const isSelected = (rowInd: number, colInd: number, isF: boolean = false) => {
+    if (selection.startCol === selection.endCol && selection.startRow === selection.endRow){
+        return false
+    }
     if (selection.startRow === null || selection.endRow === null ||
         selection.startCol === null || selection.endCol === null) {
         return false;
@@ -629,6 +747,13 @@ const isSelected = (rowInd: number, colInd: number) => {
     endRow = Math.max(selection.startRow, selection.endRow);
     startCol = Math.min(selection.startCol, selection.endCol);
     endCol = Math.max(selection.startCol, selection.endCol);
+
+    if (isF){
+        if(rowInd >= startRow && rowInd <= endRow && colInd >= startCol && colInd <= endCol) {
+            // arrCells.value[rowInd][colInd].inFormula = true
+            return true
+        }
+    }
     return (
         rowInd >= startRow &&
         rowInd <= endRow &&
@@ -767,7 +892,7 @@ const duplicateSelectCells = (e: Event) => {
             let valuesSequence: string[] = [];
             selectedCellsValue.forEach(i => {
                 i.forEach(j => {
-                    valuesSequence.push(j);
+                    valuesSequence.push(j.content);
                 });
             });
             lastValue = Number(valuesSequence[1]);
@@ -806,7 +931,7 @@ const duplicateSelectCells = (e: Event) => {
                     if (endRow - startRow + 1 <= r) {
                         r = 0;
                     }
-                    cell.content = selectedCellsValue[r][col];
+                    cell.content = selectedCellsValue[r][col].content;
                     col++;
                     cell.selected = false;
                     isStartDuplicate = true;

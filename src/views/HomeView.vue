@@ -270,7 +270,8 @@ const createTable = () =>{
         sheets: [
             {
                 name: 'Sheet1',
-                cellContent: [['hello']]
+                cellsContent: [['hello']],
+                cell:[]
             }
         ],
     })
