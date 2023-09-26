@@ -273,10 +273,8 @@ const activeCell = (cell: Cell, e: Event) => {
                 const elementToRemove = (item:Cell) => item.name !== cell.name
                 cellContent.inFormulaValues = cellContent.inFormulaValues.filter(item => elementToRemove(item))
                 cell.inFormula = false;
-                console.log(cell);
             } else {
                 cell.inFormula = true;
-                console.log(2);
                 // formulaCellValues.value.push(cell)
                 cellContent.inFormulaValues.push(cell)
                 // cellContent.content += "[" + cell.name + "];";
@@ -301,6 +299,7 @@ const activeCell = (cell: Cell, e: Event) => {
             break;
         }
     }
+
     colActive.value = cell.col;
     rowActive.value = cell.row;
     cell.active = true;
@@ -355,12 +354,6 @@ const inputCell = (rowI:number,colI:number,e:Event) => {
     // isFormula.value = cellContent.content.trim().toUpperCase().includes('=SUM(');
     isFormula.value = formulas.some(value => cellContent.content.trim().toUpperCase().includes(value));
 
-    if(cellContent.mathExp){
-        cellContent.mathExp = cellContent.content
-        if (cellContent.inFormulaValues){
-            cellContent.inFormulaValues = []
-        }
-    }
     if (isFormula.value && (e.target as HTMLElement).textContent?.includes(')')){
         e.target?.addEventListener('keydown', function(event) {
             if ((event as KeyboardEvent).key === "Enter"){
@@ -459,6 +452,28 @@ const changeInput = (event: Event) => {
         arrCells.value[rowActive.value][colActive.value].mathExp = "";
     }
 }
+
+const checkCellsInFormula = (value: string) => {
+    const [start,end] = value.split(":");
+
+    const sCol: string = start?.match(/[A-Z]+/)![0];
+    const sRow: number = parseInt(start?.match(/\d+/)![0]);
+    const eCol: string = end?.match(/[A-Z]+/)![0];
+    const eRow: number = parseInt(end?.match(/\d+/)![0]);
+    const cellReferences = [];
+
+    const sColIndex = tHead.value.findIndex(col => col.name === sCol.toUpperCase())
+    const eColIndex = tHead.value.findIndex(col => col.name === eCol.toUpperCase())
+
+    for (let col = sColIndex; col <= eColIndex; col++) {
+        for (let row = sRow; row <= eRow; row++) {
+            cellReferences.push(tHead.value[col].name + row);
+        }
+    }
+
+    return cellReferences;
+};
+
 const onNextCell = (cell: Cell,e:KeyboardEvent) => {
     if (e.key ===  'Enter'){
         isFormula.value = false;
@@ -469,29 +484,40 @@ const onNextCell = (cell: Cell,e:KeyboardEvent) => {
         rowActive.value += 1;
         arrCells.value[rowActive.value][colActive.value].active = true;
         arrCells.value[rowActive.value][colActive.value].editable = true;
+
+        if(formulas.some(value => cell.mathExp.toUpperCase().includes(value))){
+            let cellsInFormula = cell.mathExp.split('(').slice(1).join().split(';')
+              .map(i => i.toUpperCase().replace(';','').replace(')',''));
+
+            console.log(cellsInFormula);
+            cellsInFormula.forEach((value,i) => {
+                if (value.includes(":")) {
+                    cellsInFormula.splice(i,1,...checkCellsInFormula(value))
+                }
+            })
+            console.log(cellsInFormula);
+
+            cell.inFormulaValues = []
+            for (const row of arrCells.value) {
+                for (const col of row) {
+                    if(cellsInFormula.find(name => col.name === name)){
+                        cell.inFormulaValues.push(col)
+                    }
+                }
+            }
+
+            isFormula.value = false;
+            // cell.mathExp = cell.content.toUpperCase();
+            cell.content = String(sum(...cell.inFormulaValues))
+        }else {
+            parseExpression(cell);
+        }
         const focusOnCell = async () => {
             await nextTick();
             (refRows.value[rowActive.value] as any).children[colActive.value + 1].firstChild.focus();
         };
         focusOnCell()
         defaultSelectValue();
-    }
-    if(cell.content.toUpperCase().includes('=SUM(')){
-        // inputCell(cell.row,cell.col,e)
-        cell.inFormulaValues = []
-        let cellsInFormula = cell.content.split('[').slice(1).map(i => i.toUpperCase().replace(']','').replace(';','').replace(')',''));
-        for (const row of arrCells.value) {
-            for (const col of row) {
-                 if(cellsInFormula.find(name => col.name === name)){
-                     cell.inFormulaValues.push(col)
-                 }
-            }
-        }
-        isFormula.value = false;
-        cell.mathExp = cell.content.toUpperCase();
-        cell.content = String(sum(...cell.inFormulaValues))
-    }else {
-        parseExpression(cell);
     }
 
     checkValues(cell)
