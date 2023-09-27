@@ -335,26 +335,33 @@ const checkValues = (cell: Cell) => {
         }
     }
 }
-const inputCell = (rowI:number,colI:number,e:Event) => {
+const inputCell = (rowI:number,colI:number,e:Event|KeyboardEvent) => {
     let cellContent = arrCells.value[rowI][colI];
     cellContent.content = (e.target as HTMLElement).textContent ?? '';
 
     // isFormula.value = cellContent.content.trim().toUpperCase().includes('=SUM(');
     isFormula.value = formulas.some(value => cellContent.content.trim().toUpperCase().includes(value));
 
-    if (isFormula.value && (e.target as HTMLElement).textContent?.includes(')')){
-        e.target?.addEventListener('keydown', function(event) {
+    if(cellContent.mathExp){
+        cellContent.mathExp = cellContent.content
+        if (cellContent.inFormulaValues){
+            cellContent.inFormulaValues = []
+        }
+    }
+    if (isFormula.value && (e.target as HTMLElement).textContent?.includes(')') ){
+        const keydownHandler = (event) => {
             if ((event as KeyboardEvent).key === "Enter"){
                 isFormula.value = false;
-                cellContent.mathExp = cellContent.content.toUpperCase();
+                if (!Number(cellContent.content)){
+                    cellContent.mathExp = cellContent.content.toUpperCase();
+                }
                 cellContent.content = String(sum(...cellContent.inFormulaValues))
-
+                e.target?.removeEventListener('keydown', keydownHandler);
             }
-        })
-
+        }
+        e.target?.addEventListener('keydown', keydownHandler)
     }
 }
-
 const sum = (...cells: Cell[]) => {
     let sum = 0;
     for (const cell of cells) {
