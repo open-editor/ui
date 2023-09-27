@@ -318,18 +318,6 @@ const activeCell = (cell: Cell, e: Event) => {
     focusOnCell()
     parseExpression(cell)
 }
-// watch(() => arrCells.value.map(row => row.map(cell => cell.inFormulaValues.map(obj => obj.content))),
-//   (newValues, oldValues) => {
-//       for (let row = 0; row < newValues.length; row++) {
-//           for (let col = 0; col < newValues[row].length; col++) {
-//               for (let i = 0; i < newValues[row][col].length; i++) {
-//                   if (newValues[row][col][i] !== oldValues[row][col][i]) {
-//                       calculate(row, col);
-//                   }
-//               }
-//           }
-//       }
-//   }, { deep: true });
 const calculate = (rowActive: number, colActive: number) => {
     let cellContent = arrCells.value[rowActive][colActive];
     // console.log(cellContent);
@@ -714,18 +702,6 @@ const onMouseOver = (rowInd: number, colInd: number) => {
     if (selection.endRow < selection.startRow) {
         bottomRightCell[0] = selection.startRow
     }
-    // if (isFormula.value){
-    //     startRow = Math.min(selection.startRow, selection.endRow);
-    //     endRow = Math.max(selection.startRow, selection.endRow);
-    //     startCol = Math.min(selection.startCol, selection.endCol);
-    //     endCol = Math.max(selection.startCol, selection.endCol);
-    //
-    //     for (let i = startRow; i <= endRow; i++){
-    //         for (let j = startCol; j <= endCol; j++){
-    //             arrCells.value[i][j].inFormula = true
-    //         }
-    //     }
-    // }
 }
 let selectedCellsValue: Cell[][] = [];
 const onMouseUp = () => {
@@ -741,11 +717,6 @@ const onMouseUp = () => {
         }
         iteration++;
     }
-
-    // startRow = -1;
-    // endRow = -1;
-    // startCol = -1;
-    // endCol = -1;
 
     if (isFormula.value && (selection.startRow !== selection.endRow || selection.startCol !== selection.endCol)) {
         for (const row of selectedCellsValue) {
