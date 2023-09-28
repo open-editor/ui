@@ -264,7 +264,6 @@ const duplicateSelection = computed(() => {
     // return rowActive.value !=== selection.endRow || colActive.value !=== selection.endCol
 });
 let isFormula = ref(false)
-// let formulaCellValues = ref<Cell[]>([])
 const activeCell = (cell: Cell, e: Event) => {
     let cellContent = arrCells.value[rowActive.value][colActive.value];
     if (isFormula.value){
@@ -275,11 +274,10 @@ const activeCell = (cell: Cell, e: Event) => {
                 cell.inFormula = false;
             } else {
                 cell.inFormula = true;
-                // formulaCellValues.value.push(cell)
                 cellContent.inFormulaValues.push(cell)
-                // cellContent.content += "[" + cell.name + "];";
             }
-            cellContent.content = "=SUM(" + cellContent.inFormulaValues.map(cellName => cellName.name).join(';');
+            cellContent.content.toUpperCase();
+            cellContent.content = cellContent.content.split('(')[0] + '(' + cellContent.inFormulaValues.map(cellName => cellName.name).join(';');
         }
         isStartOver.value = true;
         selection.startRow = cell.row;
@@ -330,7 +328,8 @@ const checkValues = (cell: Cell) => {
     for (const row of arrCells.value) {
         for (const col of row) {
             if (col.inFormulaValues.find(item => item.name === cell.name)){
-                col.content = String(sum(...col.inFormulaValues));
+                let formulaName = col.mathExp.split('(')[0].slice(1)
+                col.content = String(callFormulaFunc(formulaName, col.inFormulaValues))
             }
         }
     }
@@ -349,13 +348,14 @@ const inputCell = (rowI:number,colI:number,e:Event|KeyboardEvent) => {
         }
     }
     if (isFormula.value && (e.target as HTMLElement).textContent?.includes(')') ){
-        const keydownHandler = (event) => {
+        const keydownHandler = (event:Event) => {
             if ((event as KeyboardEvent).key === "Enter"){
                 isFormula.value = false;
                 if (!Number(cellContent.content)){
                     cellContent.mathExp = cellContent.content.toUpperCase();
                 }
-                cellContent.content = String(sum(...cellContent.inFormulaValues))
+                let formulaName = cellContent.mathExp.split('(')[0].slice(1)
+                cellContent.content = String(callFormulaFunc(formulaName,cellContent.inFormulaValues))
                 e.target?.removeEventListener('keydown', keydownHandler);
             }
         }
@@ -370,6 +370,38 @@ const sum = (...cells: Cell[]) => {
     }
     return sum;
 }
+const count = (...cells: Cell[]) => {
+    let count = 0;
+    for (const cell of cells) {
+        cell.inFormula = false;
+        cell.content && count++;
+    }
+    return count;
+}
+const max = (...cells: Cell[]) => {
+    let values = cells.map(cell => {
+        cell.inFormula = false;
+        return Number(cell.content);
+    });
+    return Math.max(...values)
+}
+const min = (...cells: Cell[]) => {
+    let values = cells.map(cell => {
+        cell.inFormula = false;
+        return Number(cell.content);
+    });
+    return Math.min(...values)
+}
+const formulaFunctions: { [key:string]: (...cells: Cell[]) => number} = {
+    'SUM': sum,
+    'COUNT': count,
+    'MAX': max,
+    'MIN': min,
+};
+const callFormulaFunc = (func: string, arr: Cell[]) => {
+    return formulaFunctions[func](...arr)
+}
+
 let sheetsCounter = curTable!.sheets.length;
 const addSheet = async () => {
     sheetsCounter++;
@@ -502,8 +534,9 @@ const onNextCell = (cell: Cell,e:KeyboardEvent) => {
             }
 
             isFormula.value = false;
-            // cell.mathExp = cell.content.toUpperCase();
-            cell.content = String(sum(...cell.inFormulaValues))
+
+            let formulaName = cell.mathExp.split('(')[0].slice(1)
+            cell.content = String(callFormulaFunc(formulaName, cell.inFormulaValues))
         }else {
             parseExpression(cell);
         }
