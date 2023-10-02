@@ -275,6 +275,12 @@ const activeCell = (cell: Cell, e: Event) => {
             } else {
                 cell.inFormula = true;
                 cellContent.inFormulaValues.push(cell)
+
+                // init value
+                startRow = cell.row
+                endRow = cell.row
+                startCol = cell.col
+                endCol = cell.col
             }
             cellContent.content.toUpperCase();
             cellContent.content = cellContent.content.split('(')[0] + '(' + cellContent.inFormulaValues.map(cellName => cellName.name).join(';');
@@ -392,14 +398,15 @@ const min = (...cells: Cell[]) => {
     });
     return Math.min(...values)
 }
-const formulaFunctions: { [key:string]: (...cells: Cell[]) => number} = {
-    'SUM': sum,
-    'COUNT': count,
-    'MAX': max,
-    'MIN': min,
-};
+const formulaFunctions: Map<string,(...cells: Cell[]) => number> = new Map();
+formulaFunctions.set("SUM", sum)
+  .set("COUNT", count)
+  .set("MAX", max)
+  .set("MIN", min);
+
 const callFormulaFunc = (func: string, arr: Cell[]) => {
-    return formulaFunctions[func](...arr)
+    const res = formulaFunctions.get(func.toUpperCase());
+    return res ? res(...arr) : `Function '${func}' not found`
 }
 
 let sheetsCounter = curTable!.sheets.length;
@@ -769,7 +776,10 @@ const onMouseUp = () => {
                 }
             }
         }
-        cellContent.content += `:${cellContent.inFormulaValues[cellContent.inFormulaValues.length-1].name}`
+
+        let str : (string[]|string) = cellContent.content.split(';')
+        str = str.length === 1 ? str[0].split('(')[0] + '(' : (str.pop() && str.join(';')) + ';'
+        cellContent.content = str + `${arrCells.value[startRow][startCol].name}:${arrCells.value[endRow][endCol].name}`
     }
 }
 const isSelected = (rowInd: number, colInd: number, isF: boolean = false) => {
