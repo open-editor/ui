@@ -29,7 +29,7 @@
     "@tsconfig/node16": "^16.1.1",
     "@types/jsdom": "^21.1.0",
     "@types/node": "^20.6.2",
-    "@vitejs/plugin-vue": "^4.2.3",
+    "@vitejs/plugin-vue": "^4.5.0",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/eslint-config-typescript": "^11.0.2",
     "@vue/test-utils": "^2.3.0",
